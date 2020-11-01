@@ -33,6 +33,11 @@ async function start() {
       } else {
         await fs.writeFileSync('jd_superMarketTeam.json', JSON.stringify(info));
         console.log('文件写入成功，新的teamId和pkActivityId已经替换');
+        $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json`}).then((resp) => {
+          if (resp.statusCode === 200) {
+            console.log(`已刷新CDN缓存`)
+          }
+        });
       }
     }
   } else if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 300) {
