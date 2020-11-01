@@ -31,15 +31,15 @@ jobs:
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
-    - name: commit
-      run: |
-        git config --global user.email ${{ secrets.GITHUB_EMAIL }}
-        git config --global user.name lxk0301
-        git add .
-        git commit -m "update by lxk0301 Github Action" -a || echo "Nothing to update"
+      - name: commit
+        run: |
+          git config --global user.email ${{ secrets.GITHUB_EMAIL }}
+          git config --global user.name lxk0301
+          git add .
+          git commit -m "update by lxk0301 Github Action" -a || echo "Nothing to update"
       
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: master
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
