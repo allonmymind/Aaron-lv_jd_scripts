@@ -1,14 +1,32 @@
 const $ = new Env('updateTeamId');
-const cookie = process.env.JD_COOKIE;
+// const cookie = process.env.JD_COOKIE;
+let cookiesArr = [], cookie = '';
 const notify = $.isNode() ? require('./sendNotify') : '';
 const fs = require('fs');
+const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+if ($.isNode()) {
+  Object.keys(jdCookieNode).forEach((item) => {
+    cookiesArr.push(jdCookieNode[item])
+  })
+  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+}
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async () => {
-  if (!cookie) {
+  if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/', {"open-url": "https://bean.m.jd.com/"});
     return;
   }
-  await start()
+  $.teamIdArr = [];
+  for (let i = 0; i < cookiesArr.length; i++) {
+    if (cookiesArr[i]) {
+      cookie = cookiesArr[i];
+      $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+      $.index = i + 1;
+      await getTeamId();
+    }
+  }
+  cookie = cookiesArr[0];
+  await start();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -18,18 +36,22 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     })
 
 async function start() {
+  console.log(`\nteamId\n${JSON.stringify($.teamIdArr)}\n`)
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const {joinStatus, pkActivityId, teamId} = smtg_getTeamPkDetailInfoRes.data.result;
-    if (joinStatus !== 0) {
+    const {joinStatus, pkActivityId, teamId, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
+    if (joinStatus === 0) {
+      console.log(`暂未加入战队`);
+    } else if (joinStatus === 1) {
+      console.log(`${$.UserName}已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
       const info = {
         pkActivityId,
-        teamId,
+        "teamId": $.teamIdArr || [].push(teamId),
       }
       let jd_superMarketTeam = await fs.readFileSync('./jd_superMarketTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
       if (jd_superMarketTeam.pkActivityId === pkActivityId) {
-        console.log('pkActivityId暂无变化');
+        console.log('pkActivityId暂无变化, 暂不替换json文件');
       } else {
         await fs.writeFileSync('jd_superMarketTeam.json', JSON.stringify(info));
         console.log(`文件写入成功，新的teamId:[${info.teamId}]和pkActivityId:[${info.pkActivityId}]已经替换,等待五秒后刷新CDN缓存`);
@@ -43,16 +65,51 @@ async function start() {
         });
       }
     }
+  } else {
+    console.log(`其他问题::${JSON.stringify(smtg_getTeamPkDetailInfoRes)}`);
+  }
+}
+//获取PK队伍ID
+async function getTeamId() {
+  const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
+  if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
+    const {joinStatus, pkActivityId, teamId, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
+    if (joinStatus === 0 && !teamId) {
+      console.log(`暂未加入战队,现在开始创建PK战队`);
+      await smtg_createPkTeam();
+      await getTeamId();
+    } else if (joinStatus === 1) {
+      console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
+      if (teamId) $.teamIdArr.push(teamId);
+    }
   } else if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 300) {
     console.log(`京东cookie已失效,请重新登陆`)
     if ($.isNode()) {
-      await notify.sendNotify(`${$.name}cookie已失效`, `请重新登录获取cookie`);
+      await notify.sendNotify(`${$.name}cookie已失效`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
     }
   } else {
     console.log(`其他问题::${JSON.stringify(smtg_getTeamPkDetailInfoRes)}`);
   }
 }
-
+function smtg_createPkTeam() {
+  return new Promise((resolve) => {
+    $.get(taskUrl('smtg_createPkTeam', { "teamName": `lxk030${$.index}`,  "channel": "1" }), (err, resp, data) => {
+      try {
+        if (err) {
+          console.log('\n京小超: API查询请求失败 ‼️‼️')
+          console.log(JSON.stringify(err));
+        } else {
+          console.log(`创建PK队伍结果::${data}`);
+          data = JSON.parse(data);
+        }
+      } catch (e) {
+        $.logErr(e, resp);
+      } finally {
+        resolve(data);
+      }
+    })
+  })
+}
 function smtg_getTeamPkDetailInfo() {
   return new Promise((resolve) => {
     $.get(taskUrl('smtg_getTeamPkDetailInfo'), (err, resp, data) => {
