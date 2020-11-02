@@ -24,7 +24,6 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
       await getTeamId();
     }
   }
-  cookie = cookiesArr[0];
   await start();
 })()
     .catch((e) => {
@@ -36,13 +35,14 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 
 async function start() {
   console.log(`\nteamId\n${JSON.stringify($.teamIdArr)}\n`)
+  cookie = cookiesArr[0];
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
     const {joinStatus, pkActivityId, teamId, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0) {
       console.log(`暂未加入战队`);
     } else if (joinStatus === 1) {
-      console.log(`${$.UserName}已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
+      console.log(`${decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])}  已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
       const info = {
         pkActivityId,
         "teamId": $.teamIdArr || [].push(teamId),
