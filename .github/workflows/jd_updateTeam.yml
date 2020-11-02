@@ -28,6 +28,9 @@ jobs:
       - name: '运行 【更新京小超PK信息】'
         run: |
           node jd_updateTeam.js
+        env:
+          JD_COOKIE: ${{ secrets.JD_COOKIE }}
+          JD_DEBUG: ${{ secrets.JD_DEBUG }}
       - name: '运行 【更新818互助码】'
         run: |
           node updateShareCode.js
