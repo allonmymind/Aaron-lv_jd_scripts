@@ -32,10 +32,13 @@ async function start() {
         console.log('pkActivityId暂无变化');
       } else {
         await fs.writeFileSync('jd_superMarketTeam.json', JSON.stringify(info));
-        console.log('文件写入成功，新的teamId和pkActivityId已经替换');
-        $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json`}).then((resp) => {
+        console.log(`文件写入成功，新的teamId:[${info.teamId}]和pkActivityId:[${info.pkActivityId}]已经替换,等待五秒后刷新CDN缓存`);
+        await $.wait(5000);
+        await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json`}).then((resp) => {
           if (resp.statusCode === 200) {
             console.log(`已刷新CDN缓存`)
+          } else {
+            console.log(`刷新失败::${JSON.stringify(resp)}`)
           }
         });
       }
