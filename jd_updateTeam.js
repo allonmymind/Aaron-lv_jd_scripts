@@ -1,15 +1,14 @@
-const $ = new Env('updateTeamId');
+const $ = new Env('更新京小超PK队伍ID');
 // const cookie = process.env.JD_COOKIE;
 let cookiesArr = [], cookie = '';
 const notify = $.isNode() ? require('./sendNotify') : '';
 const fs = require('fs');
-const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-if ($.isNode()) {
-  Object.keys(jdCookieNode).forEach((item) => {
-    cookiesArr.push(jdCookieNode[item])
-  })
-  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
-}
+const jdCookieNode = require('./jdCookie.js');
+Object.keys(jdCookieNode).forEach((item) => {
+  cookiesArr.push(jdCookieNode[item])
+})
+if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+
 const JD_API_HOST = 'https://api.m.jd.com/api';
 !(async () => {
   if (!cookiesArr[0]) {
