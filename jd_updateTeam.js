@@ -58,7 +58,7 @@ async function writeFile() {
       }
       let jd_superMarketTeam = await fs.readFileSync('./jd_updateTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
-      if (jd_superMarketTeam.pkActivityId !== pkActivityId) {
+      if (jd_superMarketTeam.pkActivityId === pkActivityId) {
         console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
       } else {
         await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(info));
