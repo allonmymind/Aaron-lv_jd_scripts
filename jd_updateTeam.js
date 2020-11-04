@@ -24,7 +24,16 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
       await getTeamId();
     }
   }
-  await start();
+  await writeFile();
+  console.log(`等待五秒后刷新CDN缓存`);
+  await $.wait(5000);
+  await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json`}).then((resp) => {
+    if (resp.statusCode === 200) {
+      console.log(`已刷新CDN缓存`)
+    } else {
+      console.log(`刷新失败::${JSON.stringify(resp)}`)
+    }
+  });
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -33,53 +42,45 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
       $.done();
     })
 
-async function start() {
+async function writeFile() {
   console.log(`\nteamId\n${JSON.stringify($.teamIdArr)}\n`)
   cookie = cookiesArr[0];
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const {joinStatus, pkActivityId, teamId, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
+    const {joinStatus, pkActivityId, teamId, inviteCode, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0) {
       console.log(`暂未加入战队`);
     } else if (joinStatus === 1) {
       console.log(`${decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])}  已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
       const info = {
         pkActivityId,
-        "teamId": $.teamIdArr || [].push(teamId),
+        "Teams": $.teamIdArr || [].push({teamId, inviteCode}),
       }
-      let jd_superMarketTeam = await fs.readFileSync('./jd_superMarketTeam.json');
+      let jd_superMarketTeam = await fs.readFileSync('./jd_updateTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
-      if (jd_superMarketTeam.pkActivityId === pkActivityId) {
-        console.log('pkActivityId暂无变化, 暂不替换json文件');
+      if (jd_superMarketTeam.pkActivityId !== pkActivityId) {
+        console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
       } else {
-        await fs.writeFileSync('jd_superMarketTeam.json', JSON.stringify(info));
-        console.log(`文件写入成功，新的teamId:[${info.teamId}]和pkActivityId:[${info.pkActivityId}]已经替换,等待五秒后刷新CDN缓存`);
-        await $.wait(5000);
-        await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_superMarketTeam.json`}).then((resp) => {
-          if (resp.statusCode === 200) {
-            console.log(`已刷新CDN缓存`)
-          } else {
-            console.log(`刷新失败::${JSON.stringify(resp)}`)
-          }
-        });
+        await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(info));
+        console.log(`文件写入成功，新的teamId:[${teamId}]和pkActivityId:[${info.pkActivityId}]已经替换`);
       }
     }
   } else {
-    console.log(`其他问题::${JSON.stringify(smtg_getTeamPkDetailInfoRes)}`);
+    console.log(`文件暂未开始写入，其他问题::${JSON.stringify(smtg_getTeamPkDetailInfoRes)}`);
   }
 }
 //获取PK队伍ID
 async function getTeamId() {
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const {joinStatus, pkActivityId, teamId, currentUserPkInfo} = smtg_getTeamPkDetailInfoRes.data.result;
+    const {joinStatus, teamId, currentUserPkInfo, inviteCode} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0 && !teamId) {
       console.log(`暂未加入战队,现在开始创建PK战队`);
       await smtg_createPkTeam();
       await getTeamId();
     } else if (joinStatus === 1) {
       console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
-      if (teamId) $.teamIdArr.push(teamId);
+      if (teamId) $.teamIdArr.push({teamId, inviteCode});
     }
   } else if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 300) {
     console.log(`京东cookie已失效,请重新登陆`)
