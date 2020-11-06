@@ -73,7 +73,7 @@ async function writeFile() {
 async function getTeamId() {
   const smtg_getTeamPkDetailInfoRes = await smtg_getTeamPkDetailInfo();
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
-    const {joinStatus, teamId, currentUserPkInfo, inviteCode} = smtg_getTeamPkDetailInfoRes.data.result;
+    const {joinStatus, teamId, currentUserPkInfo, pkUserPkInfo, inviteCode} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0 && !teamId) {
       console.log(`暂未加入战队,现在等待10秒后开始创建PK战队`);
       await $.wait(10000);
@@ -81,6 +81,9 @@ async function getTeamId() {
       await getTeamId();
     } else if (joinStatus === 1) {
       console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
+
+      console.log(`\n我方战队战队 [${currentUserPkInfo.teamName}]/【${currentUserPkInfo.teamCount}】`);
+      console.log(`对方战队战队 [${pkUserPkInfo.teamName}]/【${pkUserPkInfo.teamCount}】\n`);
       if (teamId) $.teamIdArr.push({teamId, inviteCode});
     }
   } else if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 300) {
