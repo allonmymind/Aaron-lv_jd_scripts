@@ -76,7 +76,7 @@ async function getTeamId() {
     const {joinStatus, teamId, currentUserPkInfo, pkUserPkInfo, inviteCode} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0 && !teamId) {
       console.log(`暂未加入战队,现在等待10秒后开始创建PK战队`);
-      await $.wait(20000);
+      await $.wait(60000);
       await smtg_createPkTeam();
       await getTeamId();
     } else if (joinStatus === 1) {
