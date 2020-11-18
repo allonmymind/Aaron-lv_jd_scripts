@@ -52,15 +52,22 @@ async function writeFile() {
       console.log(`暂未加入战队`);
     } else if (joinStatus === 1) {
       console.log(`${decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])}  已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
-      const info = {
-        pkActivityId,
-        "Teams": $.teamIdArr || [].push({teamId, inviteCode}),
-      }
+
       let jd_superMarketTeam = await fs.readFileSync('./jd_updateTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
       if (jd_superMarketTeam.pkActivityId === pkActivityId) {
-        console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
+        // console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
+        jd_superMarketTeam.Teams = [...jd_superMarketTeam.Teams, ...($.teamIdArr || [].push({teamId, inviteCode}))];
+        console.log(`去重之前的`, jd_superMarketTeam.Teams.length)
+        jd_superMarketTeam.Teams = unique(jd_superMarketTeam.Teams, 'inviteCode');
+        console.log(`去重之后的`, jd_superMarketTeam.Teams.length)
+        await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(jd_superMarketTeam));
+        console.log(`文件写入成功，时间(北京)${new Date((new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000)).toLocaleString()}`);
       } else {
+        const info = {
+          pkActivityId,
+          "Teams": $.teamIdArr || [].push({teamId, inviteCode}),
+        }
         await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(info));
         console.log(`文件写入成功，新的teamId:[${teamId}]和pkActivityId:[${info.pkActivityId}]已经替换`);
       }
@@ -75,10 +82,15 @@ async function getTeamId() {
   if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 0) {
     const {joinStatus, teamId, currentUserPkInfo, pkUserPkInfo, inviteCode} = smtg_getTeamPkDetailInfoRes.data.result;
     if (joinStatus === 0 && !teamId) {
-      console.log(`暂未加入战队,现在等待10秒后开始创建PK战队`);
-      await $.wait(60000);
-      await smtg_createPkTeam();
-      await getTeamId();
+      const DateNow = new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000;
+      const DateNowH = new Date(DateNow).getHours();
+      console.log(`现在北京时间：${DateNowH}点，第${$.index}个京东账号`);
+      if (DateNowH === ($.index - 1)) {
+        console.log(`暂未加入战队,现在开始创建PK战队`);
+        // await $.wait(60000);
+        await smtg_createPkTeam();
+        await getTeamId();
+      }
     } else if (joinStatus === 1) {
       console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
 
@@ -95,6 +107,7 @@ async function getTeamId() {
     console.log(`其他问题::${JSON.stringify(smtg_getTeamPkDetailInfoRes)}`);
   }
 }
+//创建PK战队API
 function smtg_createPkTeam() {
   return new Promise((resolve) => {
     $.get(taskUrl('smtg_createPkTeam', { "teamName": `lxk030${$.index}`,  "channel": "1" }), (err, resp, data) => {
@@ -104,12 +117,11 @@ function smtg_createPkTeam() {
           console.log(JSON.stringify(err));
         } else {
           console.log(`创建PK队伍结果::${data}`);
-          data = JSON.parse(data);
         }
       } catch (e) {
         $.logErr(e, resp);
       } finally {
-        resolve(data);
+        resolve();
       }
     })
   })
@@ -132,7 +144,17 @@ function smtg_getTeamPkDetailInfo() {
     })
   })
 }
-
+/**
+ *    arr：要去重的数组
+ *    attr: 去重根据的属性
+ */
+function unique(arr, attr) {
+  const res = new Map();
+  return arr.filter((item) => {
+    const attrItem = item[attr]
+    return !res.has(attrItem) && res.set(attrItem, 1)
+  })
+}
 function taskUrl(function_id, body = {}) {
   return {
     url: `${JD_API_HOST}?functionId=${function_id}&appid=jdsupermarket&clientVersion=8.0.0&client=m&body=${escape(JSON.stringify(body))}&t=${Date.now()}`,
