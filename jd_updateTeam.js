@@ -25,15 +25,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     }
   }
   await writeFile();
-  console.log(`等待五秒后刷新CDN缓存`);
-  await $.wait(5000);
-  await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json`}).then((resp) => {
-    if (resp.statusCode === 200) {
-      console.log(`已刷新CDN缓存`)
-    } else {
-      console.log(`刷新失败::${JSON.stringify(resp)}`)
-    }
-  });
+  await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -41,7 +33,26 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     .finally(() => {
       $.done();
     })
-
+function showMsg() {
+  return new Promise(async resolve => {
+    console.log($.shareCode)
+    try {
+      console.log(`等待五秒后刷新CDN缓存`);
+      await $.wait(5000);
+      await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json`}).then((resp) => {
+        if (resp.statusCode === 200) {
+          console.log(`已刷新CDN缓存`)
+        } else {
+          console.log(`刷新失败::${JSON.stringify(resp)}`)
+        }
+      });
+    } catch (e) {
+      $.log(e)
+    } finally {
+      resolve()
+    }
+  })
+}
 async function writeFile() {
   console.log(`\nteamId\n${JSON.stringify($.teamIdArr)}\n`)
   cookie = cookiesArr[0];
@@ -92,11 +103,13 @@ async function getTeamId() {
         await getTeamId();
       }
     } else if (joinStatus === 1) {
-      console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
+      if (teamId) {
+        console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
 
-      console.log(`\n我方战队战队 [${currentUserPkInfo.teamName}]/【${currentUserPkInfo.teamCount}】`);
-      console.log(`对方战队战队 [${pkUserPkInfo.teamName}]/【${pkUserPkInfo.teamCount}】\n`);
-      if (teamId) $.teamIdArr.push({teamId, inviteCode});
+        console.log(`\n我方战队战队 [${currentUserPkInfo.teamName}]/【${currentUserPkInfo.teamCount}】`);
+        console.log(`对方战队战队 [${pkUserPkInfo.teamName}]/【${pkUserPkInfo.teamCount}】\n`);
+        $.teamIdArr.push({teamId, inviteCode})
+      }
     }
   } else if (smtg_getTeamPkDetailInfoRes && smtg_getTeamPkDetailInfoRes.data.bizCode === 300) {
     console.log(`京东cookie已失效,请重新登陆`)
