@@ -1,4 +1,4 @@
-const $ = new Env('东东小窝');
+const $ = new Env('更新东东小窝邀请码');
 const fs = require('fs');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
