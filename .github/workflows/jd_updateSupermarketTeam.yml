@@ -1,16 +1,16 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: jd_updateTeam
+name: jd_updateSupermarketTeam
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 16 * * *'
+    - cron: '0 23 * * *'
   watch:
     types: started
   repository_dispatch:
-    types: jd_updateTeam
+    types: jd_updateSupermarketTeam
 jobs:
   build:
 
@@ -25,20 +25,14 @@ jobs:
       - name: npm install
         run: |
           npm install
-      - name: '运行 【更新东东小窝信息】'
+      - name: '运行 【更新京小超PK信息】'
         run: |
-          node jd_update_home.js
+          node jd_updateTeam.js
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
-      #- name: '运行 【更新818互助码】'
-        #run: |
-          #node updateShareCode.js
-       #env:
-          #JD_COOKIE: ${{ secrets.JD_COOKIE }}
-        
       - name: commit
         run: |
           git config --global user.email ${{ secrets.EMAIL }}

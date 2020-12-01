@@ -35,7 +35,6 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     })
 function showMsg() {
   return new Promise(async resolve => {
-    console.log($.shareCode)
     try {
       console.log(`等待五秒后刷新CDN缓存`);
       await $.wait(5000);
@@ -67,13 +66,13 @@ async function writeFile() {
       let jd_superMarketTeam = await fs.readFileSync('./jd_updateTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
       if (jd_superMarketTeam.pkActivityId === pkActivityId) {
-        // console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
-        jd_superMarketTeam.Teams = [...jd_superMarketTeam.Teams, ...($.teamIdArr || [].push({teamId, inviteCode}))];
-        console.log(`去重之前的`, jd_superMarketTeam.Teams.length)
-        jd_superMarketTeam.Teams = unique(jd_superMarketTeam.Teams, 'inviteCode');
-        console.log(`去重之后的`, jd_superMarketTeam.Teams.length)
-        await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(jd_superMarketTeam));
-        console.log(`文件写入成功，时间(北京)${new Date((new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000)).toLocaleString()}`);
+        console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);
+        // jd_superMarketTeam.Teams = [...jd_superMarketTeam.Teams, ...($.teamIdArr || [].push({teamId, inviteCode}))];
+        // console.log(`去重之前的`, jd_superMarketTeam.Teams.length)
+        // jd_superMarketTeam.Teams = unique(jd_superMarketTeam.Teams, 'inviteCode');
+        // console.log(`去重之后的`, jd_superMarketTeam.Teams.length)
+        // await fs.writeFileSync('jd_updateTeam.json', JSON.stringify(jd_superMarketTeam));
+        // console.log(`文件写入成功，时间(北京)${new Date((new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000)).toLocaleString()}`);
       } else {
         const info = {
           pkActivityId,
@@ -96,12 +95,10 @@ async function getTeamId() {
       const DateNow = new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000;
       const DateNowH = new Date(DateNow).getHours();
       console.log(`现在北京时间：${DateNowH}点，第${$.index}个京东账号`);
-      if (DateNowH === ($.index - 1)) {
-        console.log(`暂未加入战队,现在开始创建PK战队`);
-        // await $.wait(60000);
-        await smtg_createPkTeam();
-        await getTeamId();
-      }
+      console.log(`暂未加入战队,现在等待60秒后开始创建PK战队`);
+      await $.wait(60000);
+      await smtg_createPkTeam();
+      await getTeamId();
     } else if (joinStatus === 1) {
       if (teamId) {
         console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
