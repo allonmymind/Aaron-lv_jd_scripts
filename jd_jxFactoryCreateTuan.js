@@ -20,7 +20,7 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
     return;
   }
   $.tuanIds = [];
-  await readFile();
+  // await readFile();
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -72,9 +72,19 @@ async function writeFile() {
     tuanActiveId,
     "tuanIds": $.tuanIds,
   }
-  info.tuanIds = [...new Set(info.tuanIds)];
+  const tuanIds = info.tuanIds;
+  info.tuanIds = [...new Set(tuanIds)];
   await fs.writeFileSync('jd_updateFactoryTuanId.json', JSON.stringify(info));
   console.log(`文件写入成功，已经替换`);
+  console.log(`等待6秒后刷新CDN缓存`);
+  await $.wait(6000);
+  await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateFactoryTuanId.json`}).then((resp) => {
+    if (resp.statusCode === 200) {
+      console.log(`已刷新CDN缓存`)
+    } else {
+      console.log(`刷新CDN缓存失败::${JSON.stringify(resp)}`)
+    }
+  });
 }
 // 初始化个人信息
 function userInfo() {
@@ -152,7 +162,7 @@ async function tuanActivity() {
               if (user.encryptPin === $.encryptPin) {
                 if (user.receiveElectric && user.receiveElectric > 0) {
                   console.log(`您在${new Date(user.joinTime * 1000).toLocaleString()}开团奖励已经领取成功\n`)
-                  if ($.surplusOpenTuanNum > 0) await CreateTuan();
+                  // if ($.surplusOpenTuanNum > 0) await CreateTuan();
                 } else {
                   $.log(`已成团，可领取奖励`);
                 }
