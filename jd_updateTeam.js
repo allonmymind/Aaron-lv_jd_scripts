@@ -95,8 +95,8 @@ async function getTeamId() {
       const DateNow = new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000;
       const DateNowH = new Date(DateNow).getHours();
       console.log(`现在北京时间：${DateNowH}点，第${$.index}个京东账号`);
-      console.log(`暂未加入战队,现在等待60秒后开始创建PK战队`);
-      await $.wait(60000);
+      console.log(`暂未加入战队,现在等待120秒后开始创建PK战队`);
+      await $.wait(120000);
       await smtg_createPkTeam();
       await getTeamId();
     } else if (joinStatus === 1) {
