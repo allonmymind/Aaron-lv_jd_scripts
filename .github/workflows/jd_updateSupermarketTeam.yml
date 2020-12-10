@@ -45,3 +45,5 @@ jobs:
         with:
           github_token: ${{ secrets.TOKEN }}
           branch: master
+      - name: Purge CDN Cache
+        run: curl https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json
