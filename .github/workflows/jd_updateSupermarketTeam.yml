@@ -27,7 +27,7 @@ jobs:
           npm install
       - name: '运行 【更新京小超PK信息】'
         run: |
-          node jd_updateTeam.js
+          node jd_updateSupermarketTeam.js
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
@@ -46,4 +46,4 @@ jobs:
           github_token: ${{ secrets.TOKEN }}
           branch: master
       - name: Purge CDN Cache
-        run: curl https://cdn.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json
+        run: curl https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json
