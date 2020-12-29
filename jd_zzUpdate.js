@@ -1,8 +1,9 @@
 const fs = require('fs')
-const $ = new Env('赚京豆');
+const $ = new Env('京东心愿单');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+let jdNotify = true;//是否关闭通知，false打开通知推送，true关闭通知推送
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '', message;
 if ($.isNode()) {
@@ -47,7 +48,6 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
       }
       await jdWish()
     }
-
   }
   await writeFile()
 })()
@@ -66,20 +66,26 @@ async function jdWish() {
   if (!$.tuan) {
     await openTuan()
     if ($.hasOpen) await getUserTuanInfo()
-  } else {
-    console.log(`已开团`)
   }
   if ($.tuan) $.tuanList.push($.tuan)
 
+  $.tuan = null
+  $.hasOpen = false
+  await getUserTuanInfo("NINE_BOX")
+  if (!$.tuan) {
+    await openTuan("NINE_BOX","lottery_drew")
+    if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
+  }
+  if ($.tuan) $.tuanList.push($.tuan)
 }
 async function writeFile() {
   if(!$.tuanList) return
-  await fs.writeFileSync('./jd_zz.json', JSON.stringify($.tuanList));
+  await fs.writeFileSync('jd_zz.json', JSON.stringify($.tuanList));
   console.log(`文件写入成功`);
 }
 
-function getUserTuanInfo() {
-  let body = {"paramData": {"channel": "FISSION_BEAN"}}
+function getUserTuanInfo(channel="FISSION_BEAN") {
+  let body = {"paramData": {"channel": channel}}
   return new Promise(resolve => {
     $.get(taskTuanUrl("distributeBeanActivityInfo", body), async (err, resp, data) => {
       try {
@@ -94,7 +100,7 @@ function getUserTuanInfo() {
                 "activityIdEncrypted": data.data.id,
                 "assistStartRecordId": data.data.assistStartRecordId,
                 "assistedPinEncrypted": data.data.encPin,
-                "channel": "FISSION_BEAN"
+                "channel": channel
               }
             $.tuanActId = data.data.id
           }
@@ -108,8 +114,8 @@ function getUserTuanInfo() {
   })
 }
 
-function openTuan() {
-  let body = {"activityIdEncrypted": $.tuanActId, "channel": "FISSION_BEAN"}
+function openTuan(channel="FISSION_BEAN") {
+  let body = {"activityIdEncrypted": $.tuanActId, "channel": channel}
   return new Promise(resolve => {
     $.get(taskTuanUrl("vvipclub_distributeBean_startAssist", body), async (err, resp, data) => {
       try {
@@ -190,9 +196,9 @@ function taskUrl(functionId, body = {}) {
   }
 }
 
-function taskTuanUrl(function_id, body = {}) {
+function taskTuanUrl(function_id, body = {},app="swat_miniprogram") {
   return {
-    url: `${JD_API_HOST}?functionId=${function_id}&body=${escape(JSON.stringify(body))}&appid=swat_miniprogram&osVersion=5.0.0&clientVersion=3.1.3&fromType=wxapp&timestamp=${new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000}`,
+    url: `${JD_API_HOST}?functionId=${function_id}&body=${escape(JSON.stringify(body))}&appid=${app}&osVersion=5.0.0&clientVersion=3.1.3&fromType=wxapp&timestamp=${new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000}`,
     headers: {
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br",
