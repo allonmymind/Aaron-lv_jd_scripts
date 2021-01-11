@@ -105,7 +105,11 @@ async function getTeamId() {
         console.log(`账号${$.index} ${$.UserName}--已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
 
         console.log(`\n我方战队战队 [${currentUserPkInfo.teamName}]/【${currentUserPkInfo.teamCount}】`);
-        console.log(`对方战队战队 [${pkUserPkInfo.teamName}]/【${pkUserPkInfo.teamCount}】\n`);
+        if (pkUserPkInfo.teamId) {
+          console.log(`对方战队战队 [${pkUserPkInfo.teamName}]/【${pkUserPkInfo.teamCount}】\n`);
+        } else {
+          console.log(`对方战队战队 暂未匹配到对手\n`);
+        }
         $.teamIdArr.push({teamId, inviteCode})
       }
     }
