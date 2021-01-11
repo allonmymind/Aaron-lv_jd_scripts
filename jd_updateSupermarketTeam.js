@@ -7,7 +7,7 @@ const jdCookieNode = require('./jdCookie.js');
 Object.keys(jdCookieNode).forEach((item) => {
   cookiesArr.push(jdCookieNode[item])
 })
-cookiesArr = cookiesArr.splice(0, 10);
+// cookiesArr = cookiesArr.splice(0, 10);
 if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
 
 const JD_API_HOST = 'https://api.m.jd.com/api';
