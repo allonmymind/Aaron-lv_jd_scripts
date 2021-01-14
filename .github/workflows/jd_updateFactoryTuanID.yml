@@ -54,13 +54,13 @@ jobs:
           github_token: ${{ secrets.TOKEN }}
           branch: master
       - name: Purge CDN Cache
-        run: curl https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateFactoryTuanId.json
+        run: curl https://purge.jsdelivr.net/gh/LXK9301/updateTeam@master/jd_updateFactoryTuanId.json
       # 我自己同步到gitee使用，其他人可忽略
       - name: sync github -> gitee
         uses: Yikun/hub-mirror-action@master
         if: env.dst_key
         with:
-          src: github/lxk0301
+          src: github/LXK9301
           dst: gitee/lxk0301
           static_list: "updateTeam"
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}

@@ -46,7 +46,7 @@ const inviteCodes = ['1330186694770339842', '1330185661529935874'];
     }
   }
   await writeFile();
-  await showMsg();
+  // await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')

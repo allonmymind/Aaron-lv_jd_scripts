@@ -44,13 +44,6 @@ async function start() {
     oldData.shareCodes = $.temp;
     await fs.writeFileSync('jd_shareCodes.json', JSON.stringify(oldData));
     console.log('文件写入成功，新的shareCodes已经替换');
-    await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_shareCodes.json`}).then((resp) => {
-      if (resp.statusCode === 200) {
-        console.log(`已刷新CDN缓存`)
-      } else {
-        console.log(`刷新失败::${JSON.stringify(resp)}`)
-      }
-    });
   }
 }
 

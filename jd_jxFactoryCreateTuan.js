@@ -77,15 +77,6 @@ async function writeFile() {
   info.tuanIds = [...new Set(tuanIds)];
   await fs.writeFileSync('jd_updateFactoryTuanId.json', JSON.stringify(info));
   console.log(`文件写入成功，已经替换`);
-  console.log(`等待6秒后刷新CDN缓存`);
-  await $.wait(6000);
-  await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateFactoryTuanId.json`}).then((resp) => {
-    if (resp.statusCode === 200) {
-      console.log(`已刷新CDN缓存`)
-    } else {
-      console.log(`刷新CDN缓存失败::${JSON.stringify(resp)}`)
-    }
-  });
 }
 // 初始化个人信息
 function userInfo() {

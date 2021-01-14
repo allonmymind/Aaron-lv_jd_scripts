@@ -26,7 +26,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     }
   }
   await writeFile();
-  await showMsg();
+  // await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
