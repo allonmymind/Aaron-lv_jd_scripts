@@ -38,7 +38,7 @@ jobs:
       - name: '运行 【更新818互助码】'
         run: |
           node updateShareCode.js
-       env:
+        env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
         
       - name: commit
