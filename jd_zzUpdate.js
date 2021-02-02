@@ -1,5 +1,5 @@
 const fs = require('fs')
-const $ = new Env('京东心愿单');
+const $ = new Env('赚京豆小程序');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -61,22 +61,24 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 async function jdWish() {
   $.bean = 0
   $.tuan = null
-  $.hasOpen = false
+  $.hasOpen = false;
+  $.assistStatus = 0;
   await getUserTuanInfo()
   if (!$.tuan) {
     await openTuan()
     if ($.hasOpen) await getUserTuanInfo()
   }
-  if ($.tuan) $.tuanList.push($.tuan)
+  if ($.tuan && $.assistStatus !== 3) $.tuanList.push($.tuan)
 
   $.tuan = null
   $.hasOpen = false
+  $.assistStatus = 0;
   await getUserTuanInfo("NINE_BOX")
   if (!$.tuan) {
     await openTuan("NINE_BOX","lottery_drew")
     if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
   }
-  if ($.tuan) $.tuanList.push($.tuan)
+  if ($.tuan && $.assistStatus !== 3) $.tuanList.push($.tuan)
 }
 async function writeFile() {
   if(!$.tuanList) return
@@ -98,15 +100,20 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
           if (safeGet(data)) {
             data = JSON.parse(data);
             if (data.success) {
+              $.log(`\n\n能否再次开团: ${data.data.canStartNewAssist ? '可以' : '否'}\n\n`)
               if (!data.data.canStartNewAssist) {
+                //已开团(未达上限)且人未满 assistStatus=1,canStartNewAssist=false
+                //开团(未达上限)且人已满 assistStatus=3,canStartNewAssist=true
+                //开团已达上限,人已满 assistStatus=3,canStartNewAssist=false
                 $.tuan = {
                   "activityIdEncrypted": data.data.id,
                   "assistStartRecordId": data.data.assistStartRecordId,
                   "assistedPinEncrypted": data.data.encPin,
                   "channel": channel
                 }
-                $.tuanActId = data.data.id
               }
+              $.assistStatus = data['data']['assistStatus'];
+              $.tuanActId = data.data.id
             }
           }
         }
