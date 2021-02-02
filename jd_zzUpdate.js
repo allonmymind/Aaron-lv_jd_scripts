@@ -95,14 +95,17 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
         } else {
           if (safeGet(data)) {
             data = JSON.parse(data);
-            if (!data.data.canStartNewAssist)
-              $.tuan = {
-                "activityIdEncrypted": data.data.id,
-                "assistStartRecordId": data.data.assistStartRecordId,
-                "assistedPinEncrypted": data.data.encPin,
-                "channel": channel
+            if (data.success) {
+              if (!data.data.canStartNewAssist) {
+                $.tuan = {
+                  "activityIdEncrypted": data.data.id,
+                  "assistStartRecordId": data.data.assistStartRecordId,
+                  "assistedPinEncrypted": data.data.encPin,
+                  "channel": channel
+                }
+                $.tuanActId = data.data.id
               }
-            $.tuanActId = data.data.id
+            }
           }
         }
       } catch (e) {
