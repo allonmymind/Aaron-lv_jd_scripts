@@ -42,7 +42,9 @@ async function start() {
     console.log('shareCodes暂无变化');
   } else {
     oldData.shareCodes = $.temp;
-    await fs.writeFileSync('jd_shareCodes.json', JSON.stringify(oldData));
+    if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
+    await fs.writeFileSync(`./shareCodes/jd_shareCodes.json`, JSON.stringify(oldData));
+    // await fs.writeFileSync('jd_shareCodes.json', JSON.stringify(oldData));
     console.log('文件写入成功，新的shareCodes已经替换');
   }
 }

@@ -80,7 +80,9 @@ async function jdWish() {
 }
 async function writeFile() {
   if(!$.tuanList) return
-  await fs.writeFileSync('jd_zz.json', JSON.stringify($.tuanList));
+  if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
+  await fs.writeFileSync(`./shareCodes/jd_zz.json`, JSON.stringify($.tuanList));
+  // await fs.writeFileSync('jd_zz.json', JSON.stringify($.tuanList));
   console.log(`文件写入成功`);
 }
 

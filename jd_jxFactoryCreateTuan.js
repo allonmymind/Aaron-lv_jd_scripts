@@ -75,7 +75,8 @@ async function writeFile() {
   }
   const tuanIds = info.tuanIds;
   info.tuanIds = [...new Set(tuanIds)];
-  await fs.writeFileSync('jd_updateFactoryTuanId.json', JSON.stringify(info));
+  if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
+  await fs.writeFileSync(`./shareCodes/jd_updateFactoryTuanId.json`, JSON.stringify(info));
   console.log(`文件写入成功，已经替换`);
 }
 // 初始化个人信息
