@@ -64,7 +64,7 @@ async function writeFile() {
     } else if (joinStatus === 1) {
       console.log(`${decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])}  已加入战队 [${currentUserPkInfo.teamName}]/[${teamId}]`);
 
-      let jd_superMarketTeam = await fs.readFileSync('./jd_updateTeam.json');
+      let jd_superMarketTeam = await fs.readFileSync('./shareCodes/jd_updateTeam.json');
       jd_superMarketTeam = JSON.parse(jd_superMarketTeam);
       if (jd_superMarketTeam.pkActivityId === pkActivityId) {
         console.log(`pkActivityId【${pkActivityId}】暂无变化, 暂不替换json文件`);

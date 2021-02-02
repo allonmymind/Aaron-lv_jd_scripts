@@ -36,7 +36,7 @@ const JD_API_HOST = 'https://rdcseason.m.jd.com/api';
     })
 
 async function start() {
-  let oldData = await fs.readFileSync('./jd_shareCodes.json');
+  let oldData = await fs.readFileSync('./shareCodes/jd_shareCodes.json');
   oldData = JSON.parse(oldData);
   if (oldData.shareCodes[0] === $.temp[0]) {
     console.log('shareCodes暂无变化');

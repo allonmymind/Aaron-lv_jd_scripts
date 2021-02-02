@@ -64,10 +64,7 @@ async function jdDreamFactory() {
   await tuanActivity();
   await showMsg();
 }
-async function readFile() {
-  let oldData = await fs.readFileSync('./jd_updateFactoryTuanId.json');
-  $.oldData = JSON.parse(oldData);
-}
+
 async function writeFile() {
   const info = {
     tuanActiveId,
