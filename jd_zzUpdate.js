@@ -142,63 +142,6 @@ function openTuan(channel="FISSION_BEAN") {
   })
 }
 
-
-//格式化助力码
-function shareCodesFormat() {
-  return new Promise(async resolve => {
-    // console.log(`第${$.index}个京东账号的助力码:::${$.shareCodesArr[$.index - 1]}`)
-    $.newShareCodes = [];
-    if ($.shareCodesArr[$.index - 1]) {
-      $.newShareCodes = $.shareCodesArr[$.index - 1].split('@');
-    } else {
-      console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
-      const tempIndex = $.index > inviteCodes.length ? (inviteCodes.length - 1) : ($.index - 1);
-      $.newShareCodes = inviteCodes[tempIndex].split('@');
-    }
-    const readShareCodeRes = null //await readShareCode();
-    if (readShareCodeRes && readShareCodeRes.code === 200) {
-      $.newShareCodes = [...new Set([...$.newShareCodes, ...(readShareCodeRes.data || [])])];
-    }
-    console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify($.newShareCodes)}`)
-    resolve();
-  })
-}
-
-function requireConfig() {
-  return new Promise(resolve => {
-    console.log(`开始获取${$.name}配置文件\n`);
-    //Node.js用户请在jdCookie.js处填写京东ck;
-    const shareCodes = [] //$.isNode() ? require('./jdSplitShareCodes.js') : '';
-    console.log(`共${cookiesArr.length}个京东账号\n`);
-    $.shareCodesArr = [];
-    if ($.isNode()) {
-      Object.keys(shareCodes).forEach((item) => {
-        if (shareCodes[item]) {
-          $.shareCodesArr.push(shareCodes[item])
-        }
-      })
-    }
-    console.log(`您提供了${$.shareCodesArr.length}个账号的${$.name}助力码\n`);
-    resolve()
-  })
-}
-
-function taskUrl(functionId, body = {}) {
-  return {
-    url: `${JD_API_HOST}?functionId=${functionId}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=9.1.0`,
-    headers: {
-      'Cookie': cookie,
-      'Host': 'api.m.jd.com',
-      'Connection': 'keep-alive',
-      'Content-Type': 'application/json',
-      'Referer': 'http://wq.jd.com/wxapp/pages/hd-interaction/index/index',
-      'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0") : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0"),
-      'Accept-Language': 'zh-cn',
-      'Accept-Encoding': 'gzip, deflate, br',
-    }
-  }
-}
-
 function taskTuanUrl(function_id, body = {},app="swat_miniprogram") {
   return {
     url: `${JD_API_HOST}?functionId=${function_id}&body=${escape(JSON.stringify(body))}&appid=${app}&osVersion=5.0.0&clientVersion=3.1.3&fromType=wxapp&timestamp=${new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000}`,
@@ -216,17 +159,6 @@ function taskTuanUrl(function_id, body = {},app="swat_miniprogram") {
   }
 }
 
-function taskPostUrl(function_id, body = {}) {
-  return {
-    url: `${JD_API_HOST}?functionId=${function_id}`,
-    body: body,
-    headers: {
-      "Cookie": cookie,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0") : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0"),
-    }
-  }
-}
 
 function TotalBean() {
   return new Promise(async resolve => {
