@@ -43,7 +43,7 @@ jobs:
       - name: commit
         run: |
           git config --global user.email ${{ secrets.EMAIL }}
-          git config --global user.name lxk0620
+          git config --global user.name fickgit
           git add .
           git commit -m "update by Github Action" -a || echo "Nothing to update"
       
@@ -52,14 +52,14 @@ jobs:
         with:
           github_token: ${{ secrets.TOKEN }}
           branch: master
-      - name: Purge CDN Cache
-        run: curl https://purge.jsdelivr.net/gh/lxk0620/updateTeam@master/jd_updateSmallHomeInviteCode.json
+      #- name: Purge CDN Cache
+      #  run: curl https://purge.jsdelivr.net/gh/fickgit/updateTeam@master/jd_updateSmallHomeInviteCode.json
       # 我自己同步到gitee使用，其他人可忽略
       - name: sync github -> gitee
         uses: Yikun/hub-mirror-action@master
         if: env.dst_key
         with:
-          src: github/lxk0620
+          src: github/fickgit
           dst: gitee/lxk0301
           static_list: "updateTeam"
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
