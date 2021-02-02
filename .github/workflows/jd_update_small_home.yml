@@ -45,7 +45,7 @@ jobs:
           git config --global user.email ${{ secrets.EMAIL }}
           git config --global user.name lxk0620
           git add .
-          git commit -m "update by lxk0301 Github Action" -a || echo "Nothing to update"
+          git commit -m "update by Github Action" -a || echo "Nothing to update"
       
       - name: Push changes
         uses: ad-m/github-push-action@master
