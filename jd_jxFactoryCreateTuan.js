@@ -41,8 +41,6 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
 
         if ($.isNode()) {
           await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-        } else {
-          $.setdata('', `CookieJD${i ? i + 1 : "" }`);//cookie失效，故清空cookie。$.setdata('', `CookieJD${i ? i + 1 : "" }`);//cookie失效，故清空cookie。
         }
         continue
       }
@@ -62,7 +60,6 @@ async function jdDreamFactory() {
   await userInfo();
   if (!$.unActive) return
   await tuanActivity();
-  await showMsg();
 }
 
 async function writeFile() {
@@ -289,25 +286,7 @@ function CreateTuan() {
 
 async function showMsg() {
   return new Promise(async resolve => {
-    let ctrTemp;
-    if ($.isNode() && process.env.DREAMFACTORY_NOTIFY_CONTROL) {
-      ctrTemp = `${process.env.DREAMFACTORY_NOTIFY_CONTROL}` === 'false';
-    } else if ($.getdata('jdDreamFactory')) {
-      ctrTemp = $.getdata('jdDreamFactory') === 'false';
-    } else {
-      ctrTemp = `${jdNotify}` === 'false';
-    }
-    if (ctrTemp) {
-      $.msg($.name, '', message);
-      if ($.isNode()) {
-        await notify.sendNotify(`${$.name} - 账号${$.index} - ${$.nickName}`, `${message}\n【收取零件】获得${$.pickEle}电力`);
-      }
-    } else if (new Date().getHours() === 22) {
-      $.msg($.name, '', `${message}`)
-      $.log(`\n${message}`);
-    } else {
-      $.log(`\n${message}`);
-    }
+    $.log(`\n${message}`);
     resolve()
   })
 }
