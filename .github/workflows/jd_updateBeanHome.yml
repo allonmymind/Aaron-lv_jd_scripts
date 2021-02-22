@@ -16,7 +16,7 @@ jobs:
     env:
       dst_key: ${{ secrets.GITEE_PRIVATE_KEY }} # 我自己同步到gitee使用，其他人可忽略
     runs-on: ubuntu-latest
-    if: ${{ github.event.repository.owner.id == github.event.sender.id && github.repository == 'fickgit/test' }}
+    if: ${{ github.event.repository.owner.id == github.event.sender.id }}
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js 10.x
