@@ -37,7 +37,7 @@ jobs:
       - name: commit
         run: |
           git config --global user.email ${{ secrets.EMAIL }}
-          git config --global user.name fickgit
+          git config --global user.name ${{ secrets.USER_NAME }}
           git add .
           git commit -m "update by Github Action" -a || echo "Nothing to update"
       
@@ -53,8 +53,8 @@ jobs:
         uses: Yikun/hub-mirror-action@master
         if: env.dst_key
         with:
-          src: github/fickgit
-          dst: gitee/lxk0301
+          src: ${{ secrets.SRC_USER }}
+          dst: ${{ secrets.DST_USER }}
           static_list: "updateTeam"
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
           dst_token: ${{ secrets.GITEE_TOKEN }}
