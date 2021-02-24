@@ -84,7 +84,7 @@ function getBargainDetail(body) {
             data = JSON.parse(data);
             if (data.msg === "success") {
               const { bargainingVo, activityId } = data['bargainDetailInfoVo'];
-              const obj = { bargainingVo: bargainingVo.shopId, activityId }
+              const obj = { shopId: bargainingVo.shopId, activityId }
               // console.log(obj)
               $.inBargaining.push(obj)
             } else {
