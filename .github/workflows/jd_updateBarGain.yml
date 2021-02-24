@@ -28,7 +28,7 @@ jobs:
           npm install
       - name: '运行 【免费拿】'
         run: |
-          node jd_bargain.js
+          node jd_updateBarGain.js
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
