@@ -1,7 +1,7 @@
 /*
 京东京喜工厂自动开团
  */
-
+const exec = require('child_process').execSync
 const $ = new Env('京东京喜工厂自动开团');
 const JD_API_HOST = 'https://m.jingxi.com';
 const fs = require('fs');
@@ -48,6 +48,11 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
     }
   }
   await writeFile();
+  try {
+    await exec(`node jd_updateBarGain.js`, { stdio: "inherit" });
+  } catch (e) {
+    console.log(e)
+  }
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
