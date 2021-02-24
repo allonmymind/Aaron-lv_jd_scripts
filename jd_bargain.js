@@ -83,9 +83,10 @@ function getBargainDetail(body) {
           if (safeGet(data)) {
             data = JSON.parse(data);
             if (data.msg === "success") {
-              const { bargainingVo, activityId } = data['bargainDetailInfoVo'];
+              const { bargainingVo, bargainInfoVo, activityId } = data['bargainDetailInfoVo'];
               const obj = { shopId: bargainingVo.shopId, activityId }
-              // console.log(obj)
+              // console.log(JSON.stringify(obj));
+              console.log(`\n${bargainingVo['skuName']}\n已砍 ${bargainInfoVo['bargainPrice']}元，还差${bargainInfoVo['remainPrice']}\n`);
               $.inBargaining.push(obj)
             } else {
               console.log(JSON.stringify(data))
