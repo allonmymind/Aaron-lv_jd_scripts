@@ -35,11 +35,11 @@ jobs:
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
-#      - name: '运行 【更新免费拿商品信息】'
-#        run: |
-#          node jd_updateBarGain.js
-#        env:
-#          JD_COOKIE: ${{ secrets.JD_COOKIE }}
+      - name: '运行 【更新免费拿商品信息】'
+        run: |
+          node jd_updateBarGain.js
+        env:
+          JD_COOKIE: ${{ secrets.JD_COOKIE }}
         
       - name: commit
         run: |

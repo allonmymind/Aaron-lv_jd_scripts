@@ -48,11 +48,6 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
     }
   }
   await writeFile();
-  try {
-    await exec(`node jd_updateBarGain.js`, { stdio: "inherit" });
-  } catch (e) {
-    console.log(e)
-  }
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
