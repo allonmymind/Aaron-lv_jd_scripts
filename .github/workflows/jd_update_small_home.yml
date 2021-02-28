@@ -35,9 +35,15 @@ jobs:
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
       - name: '运行 【更新领现金】'
-      - name: '运行 【更新财富岛互助码】'
         run: |
           node jd_updateCash.js
+        env:
+          JD_COOKIE: ${{ secrets.JD_COOKIE }}
+          JD_DEBUG: ${{ secrets.JD_DEBUG }}
+          DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
+          DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
+      - name: '运行 【更新财富岛互助码】'
+        run: |
           node jd_updateCfd.js
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
