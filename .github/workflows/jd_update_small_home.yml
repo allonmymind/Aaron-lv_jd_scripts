@@ -34,11 +34,16 @@ jobs:
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
-      - name: '运行 【更新818互助码】'
+      - name: '运行 【更新财富岛互助码】'
         run: |
-          node updateShareCode.js
+          node jd_updateCfd.js
         env:
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
+      #- name: '运行 【更新818互助码】'
+        #run: |
+          #node updateShareCode.js
+        #env:
+        # JD_COOKIE: ${{ secrets.JD_COOKIE }}
         
       - name: commit
         run: |
