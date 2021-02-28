@@ -34,21 +34,13 @@ jobs:
           JD_DEBUG: ${{ secrets.JD_DEBUG }}
           DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
           DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
-      - name: '运行 【更新领现金】'
-       run: |
-        node jd_updateCash.js
-       env:
-         JD_COOKIE: ${{ secrets.JD_COOKIE }}
-         JD_DEBUG: ${{ secrets.JD_DEBUG }}
-         DD_BOT_TOKEN: ${{ secrets.DD_BOT_TOKEN }}
-         DD_BOT_SECRET: ${{ secrets.DD_BOT_SECRET }}
       - name: commit
         run: |
           git config --global user.email ${{ secrets.EMAIL }}
           git config --global user.name ${{ secrets.USER_NAME }}
           git add .
           git commit -m "update by lxk0301" -a || echo "Nothing to update"
-      
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
