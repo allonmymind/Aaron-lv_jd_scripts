@@ -6,7 +6,7 @@ name: jd_zzUpdate
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/20 16-23/1,0-5/1 * * *'
+    - cron: '*/20 16-20/1 * * *'
   watch:
     types: started
   repository_dispatch:
