@@ -27,7 +27,7 @@ let actId = "ba6fdecdda804e5997125eaddabd33f3"
     return;
   }
   await getActInfo()
-  for (let i = 0; i < cookiesArr.length; i++) {
+  for (let i = 0; i < 3; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
