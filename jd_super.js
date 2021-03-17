@@ -63,7 +63,7 @@ async function jdWish() {
   $.tuan = null
   await getUserTuanInfo()
   await share()
-  //await getPrize()
+  await getPrize()
 }
 async function writeFile() {
   if(!$.tuanList) return
