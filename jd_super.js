@@ -149,7 +149,7 @@ function share() {
                 "assistId":data.result.assistId
               }
               console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
-              $.tuanList.push($.tuan)
+              // $.tuanList.push($.tuan)
             }else{
               console.log(data.msg)
             }
