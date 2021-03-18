@@ -248,7 +248,7 @@ function QueryTuan(activeId, tuanId) {
 function CreateTuan() {
   return new Promise((resolve) => {
     const options = {
-      'url': `https://m.jingxi.com/dreamfactory/tuan/CreateTuan?activeId=${escape(tuanActiveId)}&isOpenApp=1&_time=${Date.now()}&_=${Date.now()}&sceneval=2&g_login_type=1`,
+      'url': `https://m.jingxi.com/dreamfactory/tuan/CreateTuan?activeId=${escape(tuanActiveId)}&isOpenApp=1&_time=${Date.now()}&_=${Date.now()}&sceneval=2&g_login_type=1&_stk=_time%2CactiveId%2CisOpenApp&_ste=1&h5st=20210318001442239%3B7164098695413161%3B10001%3Btk01wa4f11bcfa8nSTE4eTlkZUZmQGl88CDnHM22uQZeceXR44aWk1CBedzvfbqmNUe0jaDf2a6ZsiYap6QJBL1AVgT9%3B79025a65e101ed01c1b848d5bf03158ec13b466c3324c67e2ac872db0a0415d6`,
       "headers": {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate, br",
