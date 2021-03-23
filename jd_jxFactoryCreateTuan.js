@@ -96,20 +96,13 @@ function userInfo() {
                 $.productionId = production.productionId;//商品ID
                 $.commodityDimId = production.commodityDimId;
                 $.encryptPin = data.user.encryptPin;
-                console.log(`当前电力：${data.user.electric}`)
-                console.log(`当前等级：${data.user.currentLevel}`)
-                console.log(`分享码: ${data.user.encryptPin}`);
-                console.log(`生产进度：${((production.investedElectric / production.needElectric) * 100).toFixed(2)}%`);
-                message += `【京东账号${$.index}】${$.nickName}\n`
-                message += `【当前等级】${data.user.userIdentity} ${data.user.currentLevel}\n`;
-                message += `【生产进度】${((production.investedElectric / production.needElectric) * 100).toFixed(2)}%\n`;
               } else {
                 $.unActive = false;//标记是否开启了京喜活动或者选购了商品进行生产
                 if (!data.factoryList) {
-                  console.log('【提示】此账号京喜工厂活动未开始\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 开启活动\n');
+                  // console.log('【提示】此账号京喜工厂活动未开始\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 开启活动\n');
                   $.msg($.name, '【提示】', `京东账号${$.index}[${$.nickName}]京喜工厂活动未开始\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 开启活动`);
                 } else if (data.factoryList && !data.productionList) {
-                  console.log(`【提示】此账号京喜工厂未选购商品\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 选购\n`)
+                  // console.log(`【提示】此账号京喜工厂未选购商品\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 选购\n`)
                   $.msg($.name, '【提示】', `京东账号${$.index}[${$.nickName}]京喜工厂未选择商品\n请手动去京东APP->游戏与互动->查看更多->京喜工厂 选择商品`);
                 }
               }
