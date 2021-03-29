@@ -102,8 +102,13 @@ function getUserTuanInfo() {
                 "activityId": actId,
                 "assistId":data.result.assistId
               }
-              console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
-              $.tuanList.push($.tuan)
+              if(data.result.assistValue===data.result.bigPrizeThreshold){
+                console.log(`已经满团`)
+              } else {
+                $.tuanList.push($.tuan)
+                console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
+                }
+            
             }else{
               console.log(data.msg)
             }
