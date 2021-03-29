@@ -66,6 +66,7 @@ async function jdWish() {
   await getPrize()
 }
 async function writeFile() {
+  console.log($.tuanList.length)
   if(!$.tuanList) return
   if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
   await fs.writeFileSync(`./shareCodes/jd_super.json`, JSON.stringify($.tuanList));
