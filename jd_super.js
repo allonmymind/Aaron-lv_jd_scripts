@@ -103,6 +103,7 @@ function getUserTuanInfo() {
                 "activityId": actId,
                 "assistId": data.result.assistId
               }
+              console.log(`进度：${data.result.assistValue}/${data.result.bigPrizeThreshold}`)
               if (data.result.assistValue === data.result.bigPrizeThreshold) {
                 console.log(`已经满团`)
               } else {
