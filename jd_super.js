@@ -98,19 +98,18 @@ function getUserTuanInfo() {
         } else {
           if (safeGet(data)) {
             data = JSON.parse(data);
-            if(data.code==='0'){
+            if (data.code === '0') {
               $.tuan = {
                 "activityId": actId,
-                "assistId":data.result.assistId
+                "assistId": data.result.assistId
               }
-              if(data.result.assistValue===data.result.bigPrizeThreshold){
+              if (data.result.assistValue === data.result.bigPrizeThreshold) {
                 console.log(`已经满团`)
               } else {
                 $.tuanList.push($.tuan)
                 console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
-                }
-            
-            }else{
+              }
+            } else {
               console.log(data.msg)
             }
           }
@@ -154,7 +153,7 @@ function share() {
                 "activityId": actId,
                 "assistId":data.result.assistId
               }
-              console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
+              // console.log(`开团成功，团队信息：${JSON.stringify($.tuan)}`)
               // $.tuanList.push($.tuan)
             }else{
               console.log(data.msg)
