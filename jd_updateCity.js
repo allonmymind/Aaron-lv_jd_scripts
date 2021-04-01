@@ -23,6 +23,7 @@ const JD_API_HOST = ' https://carnivalcity.m.jd.com';
       cookie = cookiesArr[i];
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
       $.index = i + 1;
+      $.canHelp = true;
       await indexInfo();
       await getHelp();
       // await shareUrl()
@@ -62,6 +63,10 @@ function indexInfo() {
             $.hotProductList = data['data']['hotProductList'];
             $.brandList = data['data']['brandList'];
             $.browseshopList = data['data']['browseshopList'];
+            console.log(`助力情况：${data['data']['supportedNums']}/${data['data']['supportNeedNums']}`);
+            if (data['data']['supportedNums'] >= data['data']['supportNeedNums']) {
+              $.canHelp = false;//助力人数已满
+            }
           }
         }
       } catch (e) {
@@ -87,7 +92,7 @@ function getHelp() {
           data = JSON.parse(data);
           if (data.code === 200) {
             console.log(`\n您的助力码shareId(互助码每天都是变化的，旧的不可用)\n\n${data.data.shareId}\n`);
-            $.temp.push(data.data.shareId);
+            if ($.canHelp && data.data.shareId) $.temp.push(data.data.shareId);
           } else {
             console.log(`获取邀请码失败：${JSON.stringify(data)}`);
           }
