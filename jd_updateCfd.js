@@ -69,7 +69,7 @@ function getUserInfo() {
           strMyShareId,
         } = JSON.parse(data);
         $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
-        $.strMyShareIds.push(strMyShareId)
+        if (strMyShareId) $.strMyShareIds.push(strMyShareId)
         for(let key of Object.keys(SceneList)){
           let vo = SceneList[key]
           console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
@@ -97,7 +97,7 @@ function submitGroupId() {
           }
         } else {
           $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
-          $.strGroupIds.push(strGroupId)
+          if (strGroupId) $.strGroupIds.push(strGroupId)
         }
       } catch (e) {
         $.logErr(e, resp);
