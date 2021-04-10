@@ -90,6 +90,7 @@ async function writeFile() {
 
 function getUserTuanInfo(channel="FISSION_BEAN") {
   let body = {"paramData": {"channel": channel}}
+  console.log(`channel：${channel}`)
   return new Promise(resolve => {
     $.get(taskTuanUrl("distributeBeanActivityInfo", body), async (err, resp, data) => {
       try {
@@ -114,6 +115,10 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
               }
               $.assistStatus = data['data']['assistStatus'];
               $.tuanActId = data.data.id
+              console.log(`$.assistStatus：${$.assistStatus}`)
+            } else {
+              $.tuan = true;//活动太火爆了
+              console.log(`获取【赚京豆(微信小程序)-瓜分京豆】活动信息失败 ${channel} ${JSON.stringify(data)}`);
             }
           }
         }
@@ -139,6 +144,9 @@ function openTuan(channel="FISSION_BEAN") {
             data = JSON.parse(data);
             if (data['success']) {
               $.hasOpen = true
+              console.log(`【赚京豆(微信小程序)-瓜分京豆】开团成功`)
+            } else {
+              console.log(`开团失败：${JSON.stringify(data)}`)
             }
           }
         }
