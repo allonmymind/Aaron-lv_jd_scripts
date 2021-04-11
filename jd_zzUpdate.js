@@ -64,21 +64,22 @@ async function jdWish() {
   $.hasOpen = false;
   $.assistStatus = 0;
   await getUserTuanInfo()
-  if (!$.tuan) {
+  if (!$.tuan && $.assistStatus !== 3) {
+    console.log(`准备再次开团`)
     await openTuan()
     if ($.hasOpen) await getUserTuanInfo()
   }
-  if ($.tuan && $.assistStatus !== 3) $.tuanList.push($.tuan)
+  if ($.tuan && $.tuan.hasOwnProperty('assistedPinEncrypted') && $.assistStatus !== 3) $.tuanList.push($.tuan)
 
   $.tuan = null
   $.hasOpen = false
   $.assistStatus = 0;
   await getUserTuanInfo("NINE_BOX")
-  if (!$.tuan) {
+  if (!$.tuan && $.assistStatus !== 3) {
     await openTuan("NINE_BOX","lottery_drew")
     if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
   }
-  if ($.tuan && $.assistStatus !== 3) $.tuanList.push($.tuan)
+  if ($.tuan && $.tuan.hasOwnProperty('assistedPinEncrypted') && $.assistStatus !== 3) $.tuanList.push($.tuan)
 }
 async function writeFile() {
   if(!$.tuanList) return
@@ -101,7 +102,14 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
           if (safeGet(data)) {
             data = JSON.parse(data);
             if (data.success) {
-              $.log(`\n\n能否再次开团: ${data.data.canStartNewAssist ? '可以' : '否'}\n\n`)
+              $.log(`\n\n当前能否再次开团: ${data.data.canStartNewAssist ? '可以' : '否'}\n\n`)
+              if (data.data.assistStatus === 1 && !data.data.canStartNewAssist) {
+                console.log(`已开团(未达上限)，但团成员人未满`)
+              } else if (data.data.assistStatus === 3 && data.data.canStartNewAssist) {
+                console.log(`已开团(未达上限)，团成员人已满`)
+              } else if (data.data.assistStatus === 3 && !data.data.canStartNewAssist) {
+                console.log(`开团已达上限，团成员人已满`)
+              }
               if (!data.data.canStartNewAssist) {
                 //已开团(未达上限)且人未满 assistStatus=1,canStartNewAssist=false
                 //开团(未达上限)且人已满 assistStatus=3,canStartNewAssist=true
@@ -117,7 +125,7 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
               $.tuanActId = data.data.id
               console.log(`$.assistStatus：${$.assistStatus}`)
             } else {
-              $.tuan = true;//活动太火爆了
+              $.tuan = {};//活动太火爆了
               console.log(`获取【赚京豆(微信小程序)-瓜分京豆】活动信息失败 ${channel} ${JSON.stringify(data)}`);
             }
           }
