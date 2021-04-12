@@ -75,7 +75,7 @@ async function jdWish() {
   $.hasOpen = false
   $.assistStatus = 0;
   await getUserTuanInfo("NINE_BOX")
-  if (!$.tuan && $.assistStatus !== 3) {
+  if (!$.tuan && $.assistStatus === 3 && $.canStartNewAssist) {
     await openTuan("NINE_BOX","lottery_drew")
     if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
   }
@@ -122,6 +122,7 @@ function getUserTuanInfo(channel="FISSION_BEAN") {
                 }
               }
               $.assistStatus = data['data']['assistStatus'];
+              $.canStartNewAssist = data['data']['canStartNewAssist'];
               $.tuanActId = data.data.id
               console.log(`$.assistStatus：${$.assistStatus}`)
             } else {
