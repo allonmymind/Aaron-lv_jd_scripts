@@ -71,15 +71,15 @@ async function jdWish() {
   }
   if ($.tuan && $.tuan.hasOwnProperty('assistedPinEncrypted') && $.assistStatus !== 3) $.tuanList.push($.tuan)
 
-  $.tuan = null
-  $.hasOpen = false
-  $.assistStatus = 0;
-  await getUserTuanInfo("NINE_BOX")
-  if (!$.tuan && $.assistStatus === 3 && $.canStartNewAssist) {
-    await openTuan("NINE_BOX","lottery_drew")
-    if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
-  }
-  if ($.tuan && $.tuan.hasOwnProperty('assistedPinEncrypted') && $.assistStatus !== 3) $.tuanList.push($.tuan)
+  // $.tuan = null
+  // $.hasOpen = false
+  // $.assistStatus = 0;
+  // await getUserTuanInfo("NINE_BOX")
+  // if (!$.tuan && $.assistStatus === 3 && $.canStartNewAssist) {
+  //   await openTuan("NINE_BOX","lottery_drew")
+  //   if ($.hasOpen) await getUserTuanInfo("NINE_BOX")
+  // }
+  // if ($.tuan && $.tuan.hasOwnProperty('assistedPinEncrypted') && $.assistStatus !== 3) $.tuanList.push($.tuan)
 }
 async function writeFile() {
   if(!$.tuanList) return
