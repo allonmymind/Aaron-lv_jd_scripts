@@ -38,6 +38,7 @@ if ($.isNode()) {
         continue
       }
       await getUserInfo();
+      await $.wait(2000)
       await submitGroupId()
     }
   }
@@ -108,8 +109,11 @@ function submitGroupId() {
               return;
             }
           } else {
-            $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
-            if (dwStatus === 3) console.log(`已满全部助力\n`)
+            if (dwStatus === 3) {
+              console.log(`已满全部助力\n`)
+            } else {
+              $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
+            }
             if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
           }
         }
