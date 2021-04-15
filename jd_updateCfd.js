@@ -69,11 +69,14 @@ function getUserInfo() {
           strMyShareId,
         } = JSON.parse(data);
         $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
-        if (strMyShareId) $.strMyShareIds.push(strMyShareId)
+        // if (strMyShareId) $.strMyShareIds.push(strMyShareId)
+        $.canHelp = true;
         for(let key of Object.keys(SceneList)){
           let vo = SceneList[key]
           console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
+          if (vo.dwEmployeeNum >= vo.dwMaxEmployeeNum) $.canHelp = false;
         }
+        if ($.canHelp && strMyShareId) $.strMyShareIds.push(strMyShareId)
       } catch (e) {
         $.logErr(e, resp);
       } finally {
@@ -86,7 +89,7 @@ function submitGroupId() {
   return new Promise(resolve => {
     $.get(taskUrl(`user/GatherForture`), async (err, resp, g_data) => {
       try {
-        const { GroupInfo:{ strGroupId }, strPin } = JSON.parse(g_data);
+        const { GroupInfo:{ strGroupId, dwStatus }, strPin } = g_data = JSON.parse(g_data);
         if(!strGroupId) {
           const status = await openGroup();
           if(status === 0) {
@@ -97,7 +100,7 @@ function submitGroupId() {
           }
         } else {
           $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
-          if (strGroupId) $.strGroupIds.push(strGroupId)
+          if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
         }
       } catch (e) {
         $.logErr(e, resp);
