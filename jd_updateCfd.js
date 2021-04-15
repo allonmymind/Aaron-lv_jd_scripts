@@ -100,6 +100,7 @@ function submitGroupId() {
           }
         } else {
           $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
+          if (dwStatus === 3) console.log(`已满全部助力\n`)
           if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
         }
       } catch (e) {
