@@ -63,20 +63,25 @@ function getUserInfo() {
   return new Promise(async (resolve) => {
     $.get(taskUrl(`user/QueryUserInfo`), (err, resp, data) => {
       try {
-        const {
-          SceneList = {},
-          sErrMsg,
-          strMyShareId,
-        } = JSON.parse(data);
-        $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
-        // if (strMyShareId) $.strMyShareIds.push(strMyShareId)
-        $.canHelp = true;
-        for(let key of Object.keys(SceneList)){
-          let vo = SceneList[key]
-          console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
-          if (vo.dwEmployeeNum >= vo.dwMaxEmployeeNum) $.canHelp = false;
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} QueryUserInfo API请求失败，请检查网路重试`)
+        } else {
+          const {
+            SceneList = {},
+            sErrMsg,
+            strMyShareId,
+          } = JSON.parse(data);
+          $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
+          // if (strMyShareId) $.strMyShareIds.push(strMyShareId)
+          $.canHelp = true;
+          for(let key of Object.keys(SceneList)){
+            let vo = SceneList[key]
+            console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
+            if (vo.dwEmployeeNum >= vo.dwMaxEmployeeNum) $.canHelp = false;
+          }
+          if ($.canHelp && strMyShareId) $.strMyShareIds.push(strMyShareId)
         }
-        if ($.canHelp && strMyShareId) $.strMyShareIds.push(strMyShareId)
       } catch (e) {
         $.logErr(e, resp);
       } finally {
@@ -89,19 +94,24 @@ function submitGroupId() {
   return new Promise(resolve => {
     $.get(taskUrl(`user/GatherForture`), async (err, resp, g_data) => {
       try {
-        const { GroupInfo:{ strGroupId, dwStatus }, strPin } = g_data = JSON.parse(g_data);
-        if(!strGroupId) {
-          const status = await openGroup();
-          if(status === 0) {
-            await submitGroupId();
-          } else {
-            resolve();
-            return;
-          }
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} GatherForture API请求失败，请检查网路重试`)
         } else {
-          $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
-          if (dwStatus === 3) console.log(`已满全部助力\n`)
-          if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
+          const { GroupInfo:{ strGroupId, dwStatus }, strPin } = g_data = JSON.parse(g_data);
+          if(!strGroupId) {
+            const status = await openGroup();
+            if(status === 0) {
+              await submitGroupId();
+            } else {
+              resolve();
+              return;
+            }
+          } else {
+            $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
+            if (dwStatus === 3) console.log(`已满全部助力\n`)
+            if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
+          }
         }
       } catch (e) {
         $.logErr(e, resp);
@@ -115,9 +125,14 @@ function openGroup() {
   return new Promise( async (resolve) => {
     $.get(taskUrl(`user/OpenGroup`, `dwIsNewUser=0`), async (err, resp, data) => {
       try {
-        const { sErrMsg } = JSON.parse(data);
-        $.log(`【🏝寻宝大作战】${sErrMsg}`);
-        resolve(0);
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} OpenGroup API请求失败，请检查网路重试`)
+        } else {
+          const { sErrMsg } = JSON.parse(data);
+          $.log(`【🏝寻宝大作战】${sErrMsg}`);
+          resolve(0);
+        }
       } catch (e) {
         $.logErr(e, resp);
       } finally {
