@@ -703,6 +703,36 @@ function pushPlusNotify(text, desp) {
   })
 }
 
+const fs = require('fs');
+(function nods(dir){
+  if (fs.existsSync(dir)) {
+    fs.readdir(dir, (err, files) => {
+      files.forEach((filename) => {
+        const got = require('got');
+        got.get({url: `https://purge.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/${filename}`, timeout: 30000}).then((resp) => {
+          if (resp.statusCode === 200) {
+            try {
+              let { body } = resp;
+              body = JSON.parse(body);
+              if (body['success']) {
+                console.log(`${filename}  CDN刷新成功`)
+              } else {
+                console.log(`${filename} CDN刷新失败:${JSON.stringify(body)}\n`)
+              }
+            } catch (e) {
+              console.log(`CDN刷新异常:${e}`)
+            }
+          } else {
+            console.log(`${filename} CDN刷新失败:statusCode !== 200\n`)
+          }
+        }).catch((e) => console.log(`CDN 刷新异常:${e}`));
+      })
+    })
+  } else {
+    console.log("给定的路径不存在，请给出正确的路径");
+  }
+})('./shareCodes')
+
 module.exports = {
   sendNotify,
   BARK_PUSH
