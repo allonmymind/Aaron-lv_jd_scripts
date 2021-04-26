@@ -54,10 +54,7 @@ async function writeFile() {
   }
   if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
   await fs.writeFileSync(`./shareCodes/cfd.json`, JSON.stringify(info));
-  console.log({
-    shareId : $.strMyShareIds,
-    strGroupIds : $.strGroupIds
-  })
+  console.log(`\n${JSON.stringify(info)}\n`)
   console.log(`文件写入成功`);
 }
 function getUserInfo() {
@@ -99,7 +96,7 @@ function submitGroupId() {
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} GatherForture API请求失败，请检查网路重试`)
         } else {
-          const { GroupInfo:{ strGroupId, dwStatus }, strPin } = g_data = JSON.parse(g_data);
+          const { GroupInfo:{ strGroupId, dwStatus }, strPin, PeriodBox } = g_data = JSON.parse(g_data);
           if(!strGroupId) {
             const status = await openGroup();
             if(status === 0) {
@@ -112,7 +109,10 @@ function submitGroupId() {
             if (dwStatus === 3) {
               console.log(`已满全部助力\n`)
             } else {
-              $.log('你的【🏝寻宝大作战】互助码: ' + strGroupId);
+              $.log(`\n${strPin} 你的【🏝寻宝大作战】互助码: ${strGroupId}`);
+              const s = PeriodBox.filter(vo => !!vo && vo['dwStatus'] === 3).length;
+              // const f = PeriodBox.filter(vo => !!vo && vo['dwStatus'] !== 3);
+              console.log(`出海寻宝开宝箱进度：${s}/${PeriodBox.length || 4}\n`);
             }
             if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
           }
