@@ -78,7 +78,10 @@ function getUserInfo() {
             console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
             if (vo.dwEmployeeNum >= vo.dwMaxEmployeeNum) $.canHelp = false;
           }
-          if ($.canHelp && strMyShareId) $.strMyShareIds.push(strMyShareId)
+          if ($.canHelp && strMyShareId) {
+            console.log(`邀请码：${strMyShareId}`);
+            $.strMyShareIds.push(strMyShareId)
+          }
         }
       } catch (e) {
         $.logErr(e, resp);
