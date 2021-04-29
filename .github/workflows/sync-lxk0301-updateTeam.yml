@@ -1,0 +1,31 @@
+name: sync-lxk0301-updateTeam
+
+on:
+  schedule:
+    - cron:  "*/30 * * * *"
+  workflow_dispatch:
+  watch:
+    types: started
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v2
+      - name: init
+        run: |
+          git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+
+      - name: git clone lxk0301/updateTeam
+        run: |
+          git clone https://github.com/gitupdate/updateTeam updateTeam
+
+      - name: git push Aaron-lv/sync
+        uses: ad-m/github-push-action@master
+        with:
+          directory: updateTeam
+          github_token: ${{ secrets.PAT }}
+          branch: updateTeam
+          force: true

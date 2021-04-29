@@ -1,0 +1,35 @@
+name: sync-lxk0301-jd_scripts
+
+on:
+  schedule:
+    - cron:  "*/30 * * * *"
+  workflow_dispatch:
+  watch:
+    types: started
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v2
+      - name: init
+        run: |
+          git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+          mkdir -p ~/.ssh
+          echo -e "${{ secrets.LXK0301_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan gitee.com > ~/.ssh/known_hosts
+
+      - name: git clone lxk0301/jd_scripts
+        run: |
+          git clone -b master git@gitee.com:lxk0301/jd_scripts jd_scripts
+
+      - name: git push Aaron-lv/sync
+        uses: ad-m/github-push-action@master
+        with:
+          directory: jd_scripts
+          github_token: ${{ secrets.PAT }}
+          branch: jd_scripts
+          force: true
