@@ -715,15 +715,15 @@ const fs = require('fs');
               let { body } = resp;
               body = JSON.parse(body);
               if (body['success']) {
-                console.log(`${filename}  CDN刷新成功`)
+                // console.log(`${filename}  CDN刷新成功`)
               } else {
-                console.log(`${filename} CDN刷新失败:${JSON.stringify(body)}\n`)
+                // console.log(`${filename} CDN刷新失败:${JSON.stringify(body)}\n`)
               }
             } catch (e) {
               console.log(`CDN刷新异常:${e}`)
             }
           } else {
-            console.log(`${filename} CDN刷新失败:statusCode !== 200\n`)
+            // console.log(`${filename} CDN刷新失败:statusCode !== 200\n`)
           }
         }).catch((e) => console.log(`CDN 刷新异常:${e}`));
       })
