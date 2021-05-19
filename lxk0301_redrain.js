@@ -45,17 +45,6 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     if ($.activityId) {
       console.log(`\n【今日${new Date().getHours()}点ID】${$.activityId}`);
       $.redIds.push($.activityId);
-      // msg += `【今日${new Date().getHours()}点ID】${$.activityId}\n`;
-      for (let i = 0; i < cookiesArr.length; i++) {
-        if (cookiesArr[i]) {
-          cookie = cookiesArr[i];
-          $.index = i + 1;
-          $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-          message = ''
-          await receiveRedRain(actId = $.activityId);
-          if (message) msg += `【京东账号${i + 1}】${$.UserName}\n${message}\n`
-        }
-      }
     }
     await $.wait(1000)
   }
