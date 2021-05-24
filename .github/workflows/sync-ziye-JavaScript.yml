@@ -23,7 +23,7 @@ jobs:
           git clone https://github.com/ziye888/JavaScript JavaScript
 
       - name: git push Aaron-lv/sync
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v0.6.0
         with:
           directory: JavaScript
           github_token: ${{ secrets.PAT }}
