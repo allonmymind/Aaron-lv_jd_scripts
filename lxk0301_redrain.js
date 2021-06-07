@@ -83,6 +83,9 @@ function getRedRain(actId) {
             } else if (data.subCode === '8') {
               console.log(`\n查找红包雨ID:${actId} 今日次数已满`)
               $.activityId = actId
+            } else if (data.subCode === '13') {
+              console.log(`\n查找红包雨ID:${actId} 今日来晚了`)
+              $.activityId = actId
             } else {
               console.log(`\n查找红包雨ID:${actId} 异常：${JSON.stringify(data)}`)
               $.activityId = null;
