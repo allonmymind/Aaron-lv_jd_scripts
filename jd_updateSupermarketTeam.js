@@ -30,7 +30,6 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     }
   }
   await writeFile();
-  // await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -38,25 +37,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     .finally(() => {
       $.done();
     })
-function showMsg() {
-  return new Promise(async resolve => {
-    try {
-      console.log(`等待五秒后刷新CDN缓存`);
-      await $.wait(5000);
-      await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateTeam.json`}).then((resp) => {
-        if (resp.statusCode === 200) {
-          console.log(`已刷新CDN缓存`)
-        } else {
-          console.log(`刷新失败::${JSON.stringify(resp)}`)
-        }
-      });
-    } catch (e) {
-      $.log(e)
-    } finally {
-      resolve()
-    }
-  })
-}
+
 async function writeFile() {
   console.log(`\nteamId\n${JSON.stringify($.teamIdArr)}\n`)
   cookie = cookiesArr[0];

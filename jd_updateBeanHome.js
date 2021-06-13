@@ -50,7 +50,6 @@ const JD_API_HOST = 'https://api.m.jd.com/';
     }
   }
   await writeFile();
-  await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -58,24 +57,6 @@ const JD_API_HOST = 'https://api.m.jd.com/';
     .finally(() => {
       $.done();
     })
-
-function showMsg() {
-  return new Promise(async resolve => {
-    try {
-      await $.http.get({url: `https://purge.jsdelivr.net/gh/shylocks/updateTeam@main/jd_updateBeanHome.json`}).then((resp) => {
-        if (resp.statusCode === 200) {
-          console.log(`已刷新CDN缓存`)
-        } else {
-          console.log(`刷新失败::${JSON.stringify(resp)}`)
-        }
-      });
-    } catch (e) {
-      $.log(e)
-    } finally {
-      resolve()
-    }
-  })
-}
 
 async function writeFile() {
   if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);

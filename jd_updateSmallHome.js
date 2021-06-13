@@ -46,7 +46,6 @@ const inviteCodes = ['1330186694770339842', '1330185661529935874'];
     }
   }
   await writeFile();
-  // await showMsg();
 })()
     .catch((e) => {
       $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -60,24 +59,7 @@ async function smallHome() {
   if (!$.isUnLock) return;
   await createInviteUser();
 }
-function showMsg() {
-  return new Promise(async resolve => {
-    console.log($.shareCode)
-    try {
-      await $.http.get({url: `https://purge.jsdelivr.net/gh/lxk0301/updateTeam@master/jd_updateSmallHomeInviteCode.json`}).then((resp) => {
-        if (resp.statusCode === 200) {
-          console.log(`已刷新CDN缓存`)
-        } else {
-          console.log(`刷新失败::${JSON.stringify(resp)}`)
-        }
-      });
-    } catch (e) {
-      $.log(e)
-    } finally {
-      resolve()
-    }
-  })
-}
+
 async function writeFile() {
   const info = {
     "inviteCode": $.shareCode || [],
