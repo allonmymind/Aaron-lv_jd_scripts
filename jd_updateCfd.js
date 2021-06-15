@@ -1,10 +1,10 @@
-const $ = new Env("京喜财富岛");
+const $ = new Env("更新京喜财富岛");
 const fs = require('fs');
-const JD_API_HOST = "https://m.jingxi.com/";
+const JD_API_HOST = 'https://m.jingxi.com';
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [], cookie = '', message;
-$.appId = 10009;
+$.appId = 10001;
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
@@ -22,28 +22,28 @@ if ($.isNode()) {
   }
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
   await requestAlgo();
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
-      $.UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1])
+      $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
       $.index = i + 1;
       $.isLogin = true;
       $.nickName = '';
+      $.user_info = {};
       message = '';
       await TotalBean();
       console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
       if (!$.isLogin) {
         $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-
         if ($.isNode()) {
           await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
         }
         continue
       }
       await getUserInfo();
-      await $.wait(5000)
+      await $.wait(2000)
       await submitGroupId()
-      await $.wait(10000)
+      await $.wait(2000)
     }
   }
   await writeFile();
@@ -53,22 +53,23 @@ if ($.isNode()) {
 
 async function writeFile() {
   const info = {
-    shareId : $.strMyShareIds,
-    strGroupIds : $.strGroupIds
+    shareId: $.strMyShareIds,
+    strGroupIds: $.strGroupIds
   }
   if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
   await fs.writeFileSync(`./shareCodes/cfd.json`, JSON.stringify(info));
   console.log(`\n${JSON.stringify(info)}\n`)
-  console.log(`文件写入成功`);
+  console.log(`文件写入成功\n`);
 }
 function getUserInfo() {
-  return new Promise(async (resolve) => {
-    $.get(taskUrl(`user/QueryUserInfo`, {}, '_cfd_t,bizCode,ddwTaskId,dwEnv,ptag,source,strShareId,strZone'), (err, resp, data) => {
+  return new Promise(async resolve => {
+    $.get(taskUrl('user/QueryUserInfo', `ddwTaskId=&strShareId=`, `_cfd_t,bizCode,ddwTaskId,dwEnv,ptag,source,strShareId,strZone`), (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} QueryUserInfo API请求失败，请检查网路重试`)
         } else {
+          $.user_info = JSON.parse(data);
           const {
             SceneList = {},
             sErrMsg,
@@ -76,11 +77,11 @@ function getUserInfo() {
           } = JSON.parse(data);
           $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
           // if (strMyShareId) $.strMyShareIds.push(strMyShareId)
-          $.canHelp = true;
+          $.canHelp = false;
           for(let key of Object.keys(SceneList)){
             let vo = SceneList[key]
             console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
-            if (vo.dwEmployeeNum >= vo.dwMaxEmployeeNum) $.canHelp = false;
+            if (vo.dwEmployeeNum < vo.dwMaxEmployeeNum) $.canHelp = true;
           }
           if ($.canHelp && strMyShareId) {
             console.log(`邀请码：${strMyShareId}`);
@@ -88,22 +89,22 @@ function getUserInfo() {
           }
         }
       } catch (e) {
-        $.logErr(e, resp);
+        $.logErr(e, resp)
       } finally {
         resolve();
       }
-    });
-  });
+    })
+  })
 }
 function submitGroupId() {
   return new Promise(resolve => {
-    $.get(taskUrl(`user/GatherForture`), async (err, resp, g_data) => {
+    $.get(taskUrl('user/GatherForture', ``, `_cfd_t,bizCode,dwEnv,ptag,source,strZone`), async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} GatherForture API请求失败，请检查网路重试`)
         } else {
-          const { GroupInfo:{ strGroupId, dwStatus }, strPin, PeriodBox } = g_data = JSON.parse(g_data);
+            const { GroupInfo:{ strGroupId, dwStatus }, strPin, PeriodBox } = data = JSON.parse(data);
           if(!strGroupId) {
             const status = await openGroup();
             if(status === 0) {
@@ -125,16 +126,16 @@ function submitGroupId() {
           }
         }
       } catch (e) {
-        $.logErr(e, resp);
+        $.logErr(e, resp)
       } finally {
         resolve();
       }
-    });
-  });
+    })
+  })
 }
 function openGroup() {
   return new Promise( async (resolve) => {
-    $.get(taskUrl(`user/OpenGroup`, `dwIsNewUser=0`), async (err, resp, data) => {
+    $.get(taskUrl(`user/OpenGroup`, `dwIsNewUser=${$.user_info.dwIsNewUser}`, `_cfd_t,bizCode,dwIsNewUser,dwEnv,ptag,source,strZone`), async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
@@ -153,25 +154,25 @@ function openGroup() {
   });
 }
 
-function taskUrl(function_path, body, stk) {
-  let url = `${JD_API_HOST}jxcfd/${function_path}?strZone=jxcfd&bizCode=jxcfd&source=jxcfd&dwEnv=7&_cfd_t=${Date.now()}&ptag=138631.26.55&${body}&_ste=1&_=${Date.now()}&sceneval=2&g_login_type=1&g_ty=ls`;
-  url += `&h5st=${decrypt(Date.now(), stk || '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&g_ty=ls`;
+function taskUrl(functionId, body = '', stk) {
+  let url = `${JD_API_HOST}/jxcfd/${functionId}?strZone=jxcfd&bizCode=jxcfd&source=jxcfd&dwEnv=7&_cfd_t=${Date.now()}&ptag=&${body}&sceneval=2&g_login_type=1&_=${Date.now() + 2}&_ste=1`
+  url += `&h5st=${decrypt(Date.now(), stk, '', url)}`
   if (stk) {
-    url += `&stk=${encodeURIComponent(stk)}`;
+    url += `&_stk=${encodeURIComponent(stk)}`;
   }
   return {
     url,
     headers: {
-      Cookie: cookie,
-      Accept: "*/*",
-      Connection: "keep-alive",
-      Referer:"https://st.jingxi.com/fortune_island/index.html?ptag=138631.26.55",
-      "Accept-Encoding": "gzip, deflate, br",
-      Host: "m.jingxi.com",
-      "User-Agent":`jdpingou;iPhone;3.15.2;14.2.1;ea00763447803eb0f32045dcba629c248ea53bb3;network/wifi;model/iPhone13,2;appBuild/100365;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2015_311210;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148`,
-      "Accept-Language": "zh-cn",
-    },
-  };
+      'Cookie': cookie,
+      'Host': 'm.jingxi.com',
+      'Accept': '*/*',
+      'Connection': 'keep-alive',
+      'User-Agent': functionId === 'AssistFriend' ? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36" : 'jdpingou',
+      'Accept-Language': 'zh-cn',
+      'Referer': 'https://st.jingxi.com/fortune_island/exchange.html',
+      'Accept-Encoding': 'gzip, deflate, br',
+    }
+  }
 }
 function TotalBean() {
   return new Promise(async resolve => {
@@ -203,11 +204,11 @@ function TotalBean() {
               $.nickName = data.data.userInfo.baseInfo.nickname;
             }
           } else {
-            $.log('京东服务器返回空数据');
+            console.log(`京东服务器返回空数据`)
           }
         }
       } catch (e) {
-        $.logErr(e)
+        $.logErr(e, resp)
       } finally {
         resolve();
       }
@@ -240,7 +241,6 @@ Date.prototype.Format = function (fmt) {
   }
   return d;
 }
-
 async function requestAlgo() {
   $.fingerprint = await generateFp();
   const options = {
@@ -313,8 +313,8 @@ function decrypt(time, stk, type, url) {
       const random = '5gkjB6SpmC9s';
       $.token = `tk01wcdf61cb3a8nYUtHcmhSUFFCfddDPRvKvYaMjHkxo6Aj7dhzO+GXGFa9nPXfcgT+mULoF1b1YIS1ghvSlbwhE0Xc`;
       $.fingerprint = 5287160221454703;
-      const str = `${$.token}${$.fingerprint}${timestamp}${$.appId}${random}`;
-      hash1 = $.CryptoJS.SHA512(str, $.token).toString($.CryptoJS.enc.Hex);
+      const str = `${token}${$.fingerprint}${timestamp}${$.appId}${random}`;
+      hash1 = $.CryptoJS.SHA512(str, token).toString($.CryptoJS.enc.Hex);
     }
     let st = '';
     stk.split(',').map((item, index) => {
