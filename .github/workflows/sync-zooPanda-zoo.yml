@@ -1,4 +1,4 @@
-name: sync-monk-coder-dust
+name: sync-zooPanda-zoo
 
 on:
   schedule:
@@ -18,14 +18,14 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
 
-      - name: git clone monk-coder/dust
+      - name: git clone zooPanda/zoo
         run: |
-          git clone https://github.com/monk-coder/dust dust
+          git clone https://github.com/zooPanda/zoo zoo
 
       - name: git push Aaron-lv/sync
         uses: ad-m/github-push-action@v0.6.0
         with:
-          directory: dust
+          directory: zoo
           github_token: ${{ secrets.PAT }}
-          branch: dust
+          branch: zoo
           force: true
