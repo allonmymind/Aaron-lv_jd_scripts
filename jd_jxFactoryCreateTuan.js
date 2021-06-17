@@ -2,11 +2,10 @@
 京东京喜工厂自动开团
  */
 const $ = new Env('京东京喜工厂自动开团');
-const tuanActiveId = `laD7IwPwDF1-Te-MvbW9Iw==`;
 const JD_API_HOST = 'https://m.jingxi.com';
 const fs = require('fs');
 const notify = $.isNode() ? require('./sendNotify') : '';
-let cookiesArr = [], cookie = '', message = '';
+let cookiesArr = [], cookie = '', message = '', tuanActiveId = '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 Object.keys(jdCookieNode).forEach((item) => {
   cookiesArr.push(jdCookieNode[item])
@@ -23,6 +22,7 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
   $.tuanIds = [];
   // await readFile();
   await requestAlgo();
+  await getActiveId()
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -301,6 +301,32 @@ async function showMsg() {
   return new Promise(async resolve => {
     $.log(`\n${message}`);
     resolve()
+  })
+}
+
+function getActiveId(url = 'https://wqsd.jd.com/pingou/dream_factory/index.html') {
+  return new Promise(resolve => {
+    const options = {
+      url: `${url}?${new Date()}`, "timeout": 10000, headers: {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
+      }
+    };
+    $.get(options, async (err, resp, data) => {
+      try {
+        tuanActiveId = decodeURIComponent(data.match('({"width".*?})')[1])
+        tuanActiveId = JSON.parse(tuanActiveId)
+        let startTime = tuanActiveId['start'], endTime = tuanActiveId['end']
+        tuanActiveId = tuanActiveId['link'].match(/((?<=.)activeId=(.+?)==)(?:.*?)/)[2]
+        tuanActiveId = tuanActiveId + '=='
+        console.log(`\n活动ID：${tuanActiveId}\n开始时间：${startTime}\n结束时间：${endTime}`)
+        
+        // resolve(JSON.parse(data))
+      } catch (e) {
+        // $.logErr(e, resp)
+      } finally {
+        resolve();
+      }
+    })
   })
 }
 
