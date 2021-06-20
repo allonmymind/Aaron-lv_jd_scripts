@@ -20,7 +20,7 @@
     "got": "^11.5.1",
     "http-server": "^0.12.3",
     "tough-cookie": "^4.0.0",
-    "download": "^8.0.0",
+    "download": "^6.2.5",
     "request": "^2.88.2",
     "qiniu": "^7.3.3"
   }
