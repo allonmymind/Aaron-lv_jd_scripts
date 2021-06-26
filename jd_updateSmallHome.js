@@ -152,7 +152,7 @@ function loginHome() {
         } else {
           if (safeGet(data)) {
             data = JSON.parse(data);
-            await login(data.data);
+            await login(data.data["lkEPin"]);
           }
         }
       } catch (e) {
