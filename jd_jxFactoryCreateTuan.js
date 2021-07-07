@@ -1,6 +1,6 @@
 /*
-京东京喜工厂自动开团
- */
+  京东京喜工厂自动开团
+*/
 const $ = new Env('京东京喜工厂自动开团');
 const JD_API_HOST = 'https://m.jingxi.com';
 const fs = require('fs');
@@ -23,6 +23,7 @@ if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () =
   // await readFile();
   await requestAlgo();
   await getActiveId()
+  if(!tuanActiveId) return
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -305,7 +306,7 @@ async function showMsg() {
 }
 
 function getActiveId(url = 'https://wqsd.jd.com/pingou/dream_factory/index.html') {
-  return new Promise(resolve => {
+  return new Promise(async resolve => {
     const options = {
       url: `${url}?${new Date()}`, "timeout": 10000, headers: {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
@@ -313,16 +314,37 @@ function getActiveId(url = 'https://wqsd.jd.com/pingou/dream_factory/index.html'
     };
     $.get(options, async (err, resp, data) => {
       try {
-        tuanActiveId = decodeURIComponent(data.match('({"width".*?})')[1])
-        tuanActiveId = JSON.parse(tuanActiveId)
-        let startTime = tuanActiveId['start'], endTime = tuanActiveId['end']
-        tuanActiveId = tuanActiveId['link'].match(/((?<=.)activeId=(.+?)==)(?:.*?)/)[2]
-        tuanActiveId = tuanActiveId + '=='
-        console.log(`\n活动ID：${tuanActiveId}\n开始时间：${startTime}\n结束时间：${endTime}`)
-        
-        // resolve(JSON.parse(data))
+        if(err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          data = data && data.match(/window\._CONFIG = (.*) ;var __getImgUrl/)
+          if (data) {
+            data = JSON.parse(data[1]);
+            const tuanConfigs = (data[0].skinConfig[0].adConfig || []).filter(vo => !!vo && vo['channel'] === 'h5');
+            if (tuanConfigs && tuanConfigs.length) {
+              for (let item of tuanConfigs) {
+                const start = item.start;
+                const end = item.end;
+                const link = item.link;
+                if (new Date(item.end).getTime() > Date.now()) {
+                  if (link && link.match(/activeId=(.*),/) && link.match(/activeId=(.*),/)[1]) {
+                    console.log(`\n团活动ID: ${link.match(/activeId=(.*),/)[1]}\n有效时间：${start} - ${end}`);
+                    tuanActiveId = link.match(/activeId=(.*),/)[1];
+                    break
+                  }
+                } else {
+                  if (link && link.match(/activeId=(.*),/) && link.match(/activeId=(.*),/)[1]) {
+                    console.log(`\n团活动ID: ${link.match(/activeId=(.*),/)[1]}\n有效时间：${start} - ${end}\n团ID已过期`);
+                    tuanActiveId = '';
+                  }
+                }
+              }
+            }
+          }
+        }
       } catch (e) {
-        // $.logErr(e, resp)
+        $.logErr(e, resp)
       } finally {
         resolve();
       }
