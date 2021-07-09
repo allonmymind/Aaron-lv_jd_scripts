@@ -42,6 +42,7 @@ const len = 0 || cookiesArr.length;
       await jdWish();
     }
   }
+  if (!$.redPacketId) return;
   await writeFile();
 })()
   .catch((e) => {
@@ -56,28 +57,10 @@ async function jdWish() {
 }
 
 async function writeFile() {
-  let type = ["1", "0", "4", "2", "3"],
-    i = 0;
-  while (true) {
-    switch (type[i++]) {
-      case "0":
-        if (!fs.existsSync("./shareCodes")) fs.mkdirSync("./shareCodes");
-        continue;
-      case "1":
-        if (!$.redPacketId) return;
-        continue;
-      case "2":
-        console.log(`\n${JSON.stringify($.redPacketId)}\n`);
-        continue;
-      case "3":
-        console.log("文件写入成功\n");
-        continue;
-      case "4":
-        await fs.writeFileSync("./shareCodes/jd_red.json", JSON.stringify($.redPacketId));
-        continue;
-    }
-    break;
-  }
+  if (!fs.existsSync("./shareCodes")) fs.mkdirSync("./shareCodes");
+  await fs.writeFileSync("./shareCodes/jd_red.json", JSON.stringify($.redPacketId));
+  console.log(`\n${JSON.stringify($.redPacketId)}\n`);
+  console.log("文件写入成功\n");
 }
 
 function h5launch() {
