@@ -1,27 +1,28 @@
 const $ = new Env("更新京喜财富岛");
 const fs = require('fs');
-const JD_API_HOST = 'https://m.jingxi.com';
+const JD_API_HOST = 'https://m.jingxi.com/';
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 let cookiesArr = [], cookie = '', message;
-$.appId = 10001;
+$.appId = 10028;
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
   })
   if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+  if (JSON.stringify(process.env).indexOf('GITHUB') > -1) process.exit(0);
 } else {
   cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
 !(async () => {
   $.strMyShareIds = []
-  $.strGroupIds = []
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
   }
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
   await requestAlgo();
+  await $.wait(1000)
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -29,7 +30,6 @@ if ($.isNode()) {
       $.index = i + 1;
       $.isLogin = true;
       $.nickName = '';
-      $.user_info = {};
       message = '';
       await TotalBean();
       console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
@@ -42,8 +42,6 @@ if ($.isNode()) {
       }
       await getUserInfo();
       await $.wait(2000)
-      await submitGroupId()
-      await $.wait(2000)
     }
   }
   await writeFile();
@@ -54,75 +52,45 @@ if ($.isNode()) {
 async function writeFile() {
   const info = {
     shareId: $.strMyShareIds,
-    strGroupIds: $.strGroupIds
   }
   if (!fs.existsSync(`./shareCodes`)) fs.mkdirSync(`./shareCodes`);
   await fs.writeFileSync(`./shareCodes/cfd.json`, JSON.stringify(info));
   console.log(`\n${JSON.stringify(info)}\n`)
   console.log(`文件写入成功\n`);
 }
-function getUserInfo() {
+
+async function getUserInfo() {
   return new Promise(async resolve => {
-    $.get(taskUrl('user/QueryUserInfo', `ddwTaskId=&strShareId=`, `_cfd_t,bizCode,ddwTaskId,dwEnv,ptag,source,strShareId,strZone`), (err, resp, data) => {
+    $.get(taskUrl(`user/QueryUserInfo`), async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} QueryUserInfo API请求失败，请检查网路重试`)
         } else {
-          $.user_info = JSON.parse(data);
+          data = JSON.parse(data);
           const {
-            SceneList = {},
             sErrMsg,
             strMyShareId,
-          } = JSON.parse(data);
+          } = data;
           $.log(`\n获取用户信息：${sErrMsg}\n${$.showLog ? data : ""}`);
-          // if (strMyShareId) $.strMyShareIds.push(strMyShareId)
           $.canHelp = false;
-          for(let key of Object.keys(SceneList)){
-            let vo = SceneList[key]
-            console.log(`${vo.strSceneName}招工情况：${vo.dwEmployeeNum}/${vo.dwMaxEmployeeNum}`)
-            if (vo.dwEmployeeNum < vo.dwMaxEmployeeNum) $.canHelp = true;
+          let canHelp = await getTakeAggrPage()
+          let helpNum = []
+          for (let key of Object.keys(canHelp.Data.Employee.EmployeeList)) {
+            let vo = canHelp.Data.Employee.EmployeeList[key]
+            helpNum.push(vo.dwId)
+          }
+          if (canHelp.Data.Employee.dwNeedTotalPeople === helpNum[helpNum.length - 1]) {
+            console.log(`助力进度：${helpNum[helpNum.length - 1]}/${canHelp.Data.Employee.dwNeedTotalPeople}`)
+          } else {
+            console.log(`助力进度：${helpNum[helpNum.length - 1]}/${canHelp.Data.Employee.dwNeedTotalPeople}`)
+            $.canHelp = true
           }
           if ($.canHelp && strMyShareId) {
             console.log(`邀请码：${strMyShareId}`);
             $.strMyShareIds.push(strMyShareId)
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve();
-      }
-    })
-  })
-}
-function submitGroupId() {
-  return new Promise(resolve => {
-    $.get(taskUrl('user/GatherForture', ``, `_cfd_t,bizCode,dwEnv,ptag,source,strZone`), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} GatherForture API请求失败，请检查网路重试`)
-        } else {
-            const { GroupInfo:{ strGroupId, dwStatus }, strPin, PeriodBox } = data = JSON.parse(data);
-          if(!strGroupId) {
-            const status = await openGroup();
-            if(status === 0) {
-              await submitGroupId();
-            } else {
-              resolve();
-              return;
-            }
           } else {
-            if (dwStatus === 3) {
-              console.log(`已满全部助力\n`)
-            } else {
-              $.log(`\n${strPin} 你的【🏝寻宝大作战】互助码: ${strGroupId}`);
-              const s = PeriodBox.filter(vo => !!vo && vo['dwStatus'] === 3).length;
-              // const f = PeriodBox.filter(vo => !!vo && vo['dwStatus'] !== 3);
-              console.log(`出海寻宝开宝箱进度：${s}/${PeriodBox.length || 4}\n`);
-            }
-            if (strGroupId && dwStatus !== 3) $.strGroupIds.push(strGroupId)
+            console.log(`助力已满`)
           }
         }
       } catch (e) {
@@ -133,46 +101,43 @@ function submitGroupId() {
     })
   })
 }
-function openGroup() {
-  return new Promise( async (resolve) => {
-    $.get(taskUrl(`user/OpenGroup`, `dwIsNewUser=${$.user_info.dwIsNewUser}`, `_cfd_t,bizCode,dwIsNewUser,dwEnv,ptag,source,strZone`), async (err, resp, data) => {
+
+async function getTakeAggrPage() {
+  return new Promise(async (resolve) => {
+    $.get(taskUrl(`story/GetTakeAggrPage`), async (err, resp, data) => {
       try {
         if (err) {
           console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} OpenGroup API请求失败，请检查网路重试`)
+          console.log(`${$.name} GetTakeAggrPage API请求失败，请检查网路重试`)
         } else {
-          const { sErrMsg } = JSON.parse(data);
-          $.log(`【🏝寻宝大作战】${sErrMsg}`);
-          resolve(0);
+          data = JSON.parse(data);
         }
       } catch (e) {
         $.logErr(e, resp);
       } finally {
-        resolve();
+        resolve(data);
       }
-    });
-  });
+    })
+  })
 }
 
-function taskUrl(functionId, body = '', stk) {
-  let url = `${JD_API_HOST}/jxcfd/${functionId}?strZone=jxcfd&bizCode=jxcfd&source=jxcfd&dwEnv=7&_cfd_t=${Date.now()}&ptag=&${body}&sceneval=2&g_login_type=1&_=${Date.now() + 2}&_ste=1`
-  url += `&h5st=${decrypt(Date.now(), stk, '', url)}`
-  if (stk) {
-    url += `&_stk=${encodeURIComponent(stk)}`;
-  }
+function taskUrl(function_path, body) {
+  let url = `${JD_API_HOST}jxbfd/${function_path}?strZone=jxbfd&bizCode=jxbfd&source=jxbfd&dwEnv=7&_cfd_t=${Date.now()}&ptag=138631.26.55&${body}&_stk=_cfd_t%2CbizCode%2CddwTaskId%2CdwEnv%2Cptag%2Csource%2CstrShareId%2CstrZone&_ste=1`;
+  url += `&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&g_ty=ls`;
   return {
     url,
     headers: {
-      'Cookie': cookie,
-      'Host': 'm.jingxi.com',
-      'Accept': '*/*',
-      'Connection': 'keep-alive',
-      'User-Agent': functionId === 'AssistFriend' ? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36" : 'jdpingou',
-      'Accept-Language': 'zh-cn',
-      'Referer': 'https://st.jingxi.com/fortune_island/exchange.html',
-      'Accept-Encoding': 'gzip, deflate, br',
-    }
-  }
+      Cookie: cookie,
+      Accept: "*/*",
+      Connection: "keep-alive",
+      Referer:"https://st.jingxi.com/fortune_island/index.html?ptag=138631.26.55",
+      "Accept-Encoding": "gzip, deflate, br",
+      Host: "m.jingxi.com",
+      "User-Agent":`jdpingou;iPhone;3.15.2;14.2.1;ea00763447803eb0f32045dcba629c248ea53bb3;network/wifi;model/iPhone13,2;appBuild/100365;ADID/00000000-0000-0000-0000-000000000000;supportApplePay/1;hasUPPay/0;pushNoticeIsOpen/0;hasOCPay/0;supportBestPay/0;session/${Math.random * 98 + 1};pap/JA2015_311210;brand/apple;supportJDSHWK/1;Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148`,
+      "Accept-Language": "zh-cn",
+    },
+    timeout: 10000
+  };
 }
 function TotalBean() {
   return new Promise(async resolve => {
@@ -313,8 +278,8 @@ function decrypt(time, stk, type, url) {
       const random = '5gkjB6SpmC9s';
       $.token = `tk01wcdf61cb3a8nYUtHcmhSUFFCfddDPRvKvYaMjHkxo6Aj7dhzO+GXGFa9nPXfcgT+mULoF1b1YIS1ghvSlbwhE0Xc`;
       $.fingerprint = 5287160221454703;
-      const str = `${token}${$.fingerprint}${timestamp}${$.appId}${random}`;
-      hash1 = $.CryptoJS.SHA512(str, token).toString($.CryptoJS.enc.Hex);
+      const str = `${$.token}${$.fingerprint}${timestamp}${$.appId}${random}`;
+      hash1 = $.CryptoJS.SHA512(str, $.token).toString($.CryptoJS.enc.Hex);
     }
     let st = '';
     stk.split(',').map((item, index) => {
